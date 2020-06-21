@@ -1,0 +1,173 @@
+{
+	"info": {
+		"_postman_id": "8463b244-c4a2-4a6e-a3a7-d82d844557e0",
+		"name": "Patient WP API",
+		"description": "#### RESTFUL PATIENT WP API\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01 GET /registration 405",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "006676d6-78f8-43ef-9d02-fdb96d3033d9",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Method not allowed response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 405);",
+							"    pm.expect(pm.response).to.have.header('Content-type', 'application/json');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{patientHost}}/registration",
+					"host": [
+						"{{patientHost}}"
+					],
+					"path": [
+						"registration"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Not found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/programs/<uuid>/<uuid>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"programs",
+								"<uuid>",
+								"<uuid>"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "*/*"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Invalid Method",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/programs/<uuid>/<uuid>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"programs",
+								"<uuid>",
+								"<uuid>"
+							]
+						}
+					},
+					"status": "Method Not Allowed",
+					"code": 405,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "*/*"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Internal server error",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/programs/<uuid>/<uuid>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"programs",
+								"<uuid>",
+								"<uuid>"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "*/*"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Коллекция объектов программ медицинских назначений",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/programs/<uuid>/<uuid>",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"programs",
+								"<uuid>",
+								"<uuid>"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "*/*"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"id": "baseUrl",
+			"key": "baseUrl",
+			"value": "http://patient.maximus.lan/",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

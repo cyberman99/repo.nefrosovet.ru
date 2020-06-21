@@ -1,0 +1,1 @@
+db.telegram_contacts.insert({ "phone" : "+79161145827", "chatID" : NumberLong(973809056)});

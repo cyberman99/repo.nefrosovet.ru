@@ -1,0 +1,46 @@
+version: '3'
+
+networks:
+  diacare:
+    external: true
+
+services:
+  mqtt-benchmark:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    container_name: "mqtt-benchmar"
+    networks:
+      - diacare
+    ports:
+      - 13131:80
+    depends_on:
+      - test_connection_broker
+    environment:
+      - BENCHMARK_BROKER=test_connection_broker:1883
+      - BENCHMARK_ACTION=pub
+      - BENCHMARK_USERNAME=test
+      - BENCHMARK_PASSWORD=test1
+      - BENCHMARK_TOPIC=services/test1/in
+      - BENCHMARK_FILEPATH=./example/payload.example
+      - BENCHMARK_TLS=
+      - BENCHMARK_CLIENTS=1
+      - BENCHMARK_RETAIN=false
+      - BENCHMARK_COUNT=10
+      - BENCHMARK_PRETIME=300
+      - BENCHMARK_INTERVALTIME=0
+      - BENCHMARK_DEBUG=true
+      - BENCHMARK_MPS=100000
+
+  test_connection_broker:
+    image: erlio/docker-vernemq:1.8.0
+    restart: always
+    container_name: "test_connection_broker"
+    networks:
+      - diacare
+    ports:
+      - 1883
+    environment:
+      - DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=info
+      - DOCKER_VERNEMQ_QUEUE_DELIVER_MODE=balance
+      - DOCKER_VERNEMQ_USER_test=test1

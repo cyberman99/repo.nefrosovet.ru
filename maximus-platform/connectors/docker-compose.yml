@@ -1,0 +1,47 @@
+version: '3'
+
+networks:
+  diacare:
+    external: true
+
+services:
+  panicbutton:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+      args:
+        _path: cmd/delcom/panicbutton
+    container_name: "panicbutton"
+    networks:
+      - diacare
+    depends_on:
+      - panicbutton_broker
+    environment:
+      - PANICBUTTON_SENTRYDSN=https://6e4933fa655f4d12ab85f66fc0dc8f5f@sentry.diacare-soft.ru/5
+      - PANICBUTTONR_LOGGING_OUTPUT=STDOUT
+      - PANICBUTTON_LOGGING_LEVEL=INFO
+      - PANICBUTTON_LOGGING_FORMAT=TEXT
+      - PANICBUTTON_PROMETHEUS_PORT=9100
+      - PANICBUTTON_PROMETHEUS_PATH=/metrics
+      - PANICBUTTON_MQ_HOST=panicbutton_broker
+      - PANICBUTTON_MQ_PORT=1883
+      - PANICBUTTON_MQ_LOGIN=test
+      - PANICBUTTON_MQ_PASSWORD=test
+      - PANICBUTTON_MQ_CLIENTID=panicbutton
+      - PANICBUTTON_MQ_PUBLISH=panicbutton
+
+  panicbutton_broker:
+    image: erlio/docker-vernemq:1.8.0
+    restart: always
+    container_name: "panicbutton_broker"
+    networks:
+      - diacare
+    ports:
+      - 1883:1883
+    environment:
+      - DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=info
+      - DOCKER_VERNEMQ_QUEUE_DELIVER_MODE=balance
+      # Login
+      - DOCKER_VERNEMQ_USER_test=test
+    logging:
+      driver: none

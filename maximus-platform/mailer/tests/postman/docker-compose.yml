@@ -1,0 +1,104 @@
+version: '3.7'
+networks:
+ mailer:
+
+services:
+ app:
+  image: "${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}"
+  restart: always
+  container_name: "mailer_app-${CI_JOB_ID}"
+  labels:
+    log.label: "mailer_app"
+  networks:
+   - mailer
+  depends_on:
+   - config_db
+   - event_db
+  ports:
+   - 80
+  extra_hosts:
+   - api.telegram.org:149.154.167.99
+   - core.teelgram.org:149.154.167.99
+  environment:
+   - HTTP_PROXY=http://ms001-squid01.nes.lan:3128
+   - MAILER_MASTERTOKEN=58be781e-3472-47f1-a0b6-3ca459c60a3e
+   - MAILER_HTTP_HOST=0.0.0.0
+   - MAILER_HTTP_PORT=80
+   - MAILER_CONFIGDB_HOST=config_db
+   - MAILER_CONFIGDB_PORT=27017
+   - MAILER_CONFIGDB_DATABASE=mailer
+   - MAILER_EVENTDB_HOST=event_db
+   - MAILER_EVENTDB_PORT=8086
+   - MAILER_EVENTDB_DATABASE=mailer
+   - MAILER_EVENTDB_LOGIN=mailer
+   - MAILER_EVENTDB_PASSWORD=FqTfXq7e5d
+   - MAILER_BOTPROXY_HTTP_HOST=botproxy.diacare-soft.ru
+   - MAILER_BOTPROXY_HTTP_PATH=/develop
+   - MAILER_BOTPROXY_MQ_HOST=botproxy.diacare-soft.ru
+   - MAILER_BOTPROXY_MQ_PORT=8883
+   - MAILER_LOGGING_OUTPUT=STDOUT
+   - MAILER_LOGGING_LEVEL=DEBUG
+   - AUTH_LOGGING_FORMAT=JSON
+   - MAILER_SENTRYDSN=https://3a29f9d0065146a79e7f9a189f0a7aa7@sentry.diacare-soft.ru/6
+
+ config_db:
+   image: mongo:4.2
+   container_name: "mailer_config_db-${CI_JOB_ID}"
+   build:
+    context: .
+    dockerfile: Dockerfile.mongo
+    labels:
+      - "image.version=${CI_JOB_ID}"
+   environment:
+     - MONGO_DATA_DIR=/data/db
+     - MONGO_LOG_DIR=/dev/null
+     - MONGO_INITDB_DATABASE=mailer
+   networks:
+     - mailer
+   ports:
+     - 27017
+
+ event_db:
+   image: repository.diacare-soft.ru/docker/influxdb:1.7
+   container_name: "mailer_event_db-${CI_JOB_ID}"
+   networks:
+     - mailer
+   ports:
+     - 8086
+   environment:
+     - INFLUXDB_DB=mailer
+     - INFLUXDB_USER=mailer
+     - INFLUXDB_USER_PASSWORD=FqTfXq7e5d
+   logging:
+     driver: "none"
+
+ filebeat:
+   container_name: "filebeat-${CI_JOB_ID}"
+   user: root
+   build:
+     context: .
+     dockerfile: Dockerfile.filebeat
+     labels:
+       - "image.version=${CI_JOB_ID}"
+   environment:
+     PIPELINE_ID: "${CI_PIPELINE_ID}"
+     JOB_ID: "${CI_JOB_ID}"
+   networks:
+     - mailer
+   volumes:
+     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+     - /var/run/docker.sock:/var/run/docker.sock:ro
+
+ postman:
+  image: newman
+  container_name: "postman-${CI_JOB_ID}"
+  build:
+   context: .
+   dockerfile: Dockerfile.postman
+   labels:
+    - "image.version=${CI_JOB_ID}"
+  networks:
+   - mailer
+  depends_on:
+   - app
+  command: run /storage/collection.json --color on --global-var mailerHost=http://app --global-var masterToken=58be781e-3472-47f1-a0b6-3ca459c60a3e

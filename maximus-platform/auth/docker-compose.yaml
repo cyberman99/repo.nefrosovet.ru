@@ -1,0 +1,65 @@
+version: '3'
+services:
+  influxdb:
+    image: influxdb
+    container_name: auth_influxdb
+    volumes:
+      - 'influxdb:/var/lib/influxdb'
+    networks:
+      - diacare
+    expose:
+      - 8086
+      - 8083
+    environment:
+      - INFLUXDB_DB=auth-develop
+      - INFLUXDB_USER=auth-develop
+      - INFLUXDB_USER_PASSWORD=FqTfXq7e5d
+  mongo:
+    image: mongo
+    container_name: auth_mongo
+    ports:
+      - 27017:27017
+    networks:
+      - diacare
+    volumes:
+      - 'mongo:/data/db'
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    container_name: auth_server
+    environment:
+      # HTTP
+      - AUTH_HTTP_HOST=0.0.0.0
+      - AUTH_HTTP_PORT=8484
+      # EventDB
+      - AUTH_EVENTDB_HOST=auth_influxdb
+      - AUTH_EVENTDB_RETENTION=7d
+      - AUTH_EVENTDB_DATABASE=auth-develop
+      - AUTH_EVENTDB_LOGIN=auth-develop
+      - AUTH_EVENTDB_PASSWORD=FqTfXq7e5d
+      # Logging
+      - AUTH_LOGGING_LEVEL=DEBUG
+      # ConfigDB
+      - AUTH_CONFIGDB_HOST=auth_mongo
+
+      - AUTH_ADMINPASSWORD=test
+      - AUTH_TOKENSECRET=testSecret
+      # Index service. Need to start. View README.MD
+      - AUTH_INDEX_HTTP_HOST=index-app:80
+      - AUTH_SENTRYDSN=https://6bf4f61c47bf42a5bf91c984a16c3bf0@sentry.diacare-soft.ru/4
+    ports:
+      - 8484:8484
+    networks:
+      - diacare
+    tty: true
+    depends_on:
+      - influxdb
+      - mongo
+
+networks:
+  diacare:
+    external: true
+volumes:
+  mongo:
+  influxdb:

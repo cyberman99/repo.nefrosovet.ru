@@ -1,0 +1,131 @@
+version: '3.7'
+
+services:
+  patient:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        _path: cmd/patient
+    container_name: patient_server
+    environment:
+      - PATIENT_LOGGING_OUTPUT=STDOUT
+      - PATIENT_LOGGING_FORMAT=TEXT
+      - PATIENT_LOGGING_LEVEL=DEBUG
+      - PATIENT_HTTP_PORT=80
+      - PATIENT_HTTP_HOST=0.0.0.0
+      - PATIENT_SENTRYDSN=https://ada34a695baa4ad1a9d5e488e4727a3f@sentry.diacare-soft.ru/33
+      - PATIENT_DB_LOGIN=root
+      - PATIENT_DB_PASSWORD=
+      - PATIENT_DB_DATABASE=patient
+      - PATIENT_DB_APP_NAME=patient
+      - PATIENT_DB_HOST=cockroach
+      - PATIENT_DB_PORT=26257
+      - PATIENT_PROFILE_HOST=http://profile
+      - PATIENT_PROFILE_PORT=80
+    networks:
+      - diacare
+    ports:
+      - 9000:80
+    depends_on:
+      - cockroach
+      - migrate
+    tty: true
+
+  init_db:
+    image: cockroachdb/cockroach:latest
+    networks:
+      - diacare
+    depends_on:
+      - cockroach
+    entrypoint: []
+    volumes:
+      - ./db/init_db.sh:/cockroach/init_db.sh:ro
+    environment:
+      - PATIENT_DB_LOGIN=root
+      - PATIENT_DB_DATABASE=patient
+      - PATIENT_DB_HOST=cockroach
+    command: sh init_db.sh
+
+  migrate:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        _path: cmd/patient
+    container_name: migrate
+    environment:
+      - PATIENT_LOGGING_OUTPUT=STDOUT
+      - PATIENT_LOGGING_FORMAT=TEXT
+      - PATIENT_LOGGING_LEVEL=DEBUG
+      - PATIENT_DB_LOGIN=root
+      - PATIENT_DB_PASSWORD=
+      - PATIENT_DB_DATABASE=patient
+      - PATIENT_DB_APP_NAME=patient
+      - PATIENT_DB_HOST=cockroach
+      - PATIENT_DB_PORT=26257
+      - PATIENT_MIGRATIONS_PATH=file://../../db/migrations
+    networks:
+      - diacare
+    depends_on:
+      - init_db
+    command: migrate --up
+
+  populator:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        _path: cmd/populator
+    container_name: populator
+    environment:
+      - PATIENT_DB_LOGIN=root
+      - PATIENT_DB_PASSWORD=
+      - PATIENT_DB_DATABASE=patient
+      - PATIENT_DB_HOST=cockroach
+      - PATIENT_DB_PORT=26257
+      - PATIENT_POPULATOR_PATH=../../db/sqlc/models.go
+      - PATIENT_POPULATOR_ROWS=50
+    networks:
+      - diacare
+    depends_on:
+      - cockroach
+      - init_db
+      - migrate
+
+  cockroach:
+    container_name: cockroach
+    image: cockroachdb/cockroach:v19.2.2
+    command: start-single-node --insecure
+    ports:
+      - 26257
+      - 8080:8080
+    networks:
+      - diacare
+    volumes:
+      - cockroach:/data/db
+
+#  postgres:
+#    image: postgres
+#    container_name: postgres
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=postgres
+#      - POSTGRES_DB=postgres
+#    ports:
+#      - 5432:80
+#     networks:
+#       - diacare
+#    volumes:
+#      - ./postgres-data:/var/lib/postgresql/data
+
+
+networks:
+  diacare:
+    external: true
+
+volumes:
+  cockroach:
+  postgres:
+
+

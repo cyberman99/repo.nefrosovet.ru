@@ -1,0 +1,45 @@
+defaults:
+  env:
+    HTTP_PROXY: "http://ms001-squid01.nes.lan:3128"
+    MAILER_EVENTDB_HOST: "influxdb.databases"
+    MAILER_EVENTDB_PORT: "8086"
+    MAILER_EVENTDB_RETENTION: "24h"
+    MAILER_CONFIGDB_HOST: "mongodb.databases"
+    MAILER_CONFIGDB_PORT: "27017"
+    MAILER_SENTRY_DSN: "https://4a92babd5d474ec9ae7aa276970128c4:eb855ebd4bef4bba9089e9c79a1bea75@sentry.nefrosovet.ru/28"
+    MAILER_BOTPROXY_HTTP_HOST: "botproxy.diacare-soft.ru"
+    MAILER_BOTPROXY_MQ_HOST: "botproxy.diacare-soft.ru"
+    MAILER_BOTPROXY_MQ_PORT: "8883"
+    MAILER_HTTP_PORT: "80"
+    MAILER_HTTP_HOST: "0.0.0.0"
+    MAILER_PROMETHEUS_PORT: "9090"
+    MAILER_LOGGING_LEVEL: "INFO"
+    MAILER_LOGGING_FORMAT: "JSON"
+  secrets:
+    MAILER_EVENTDB_PASSWORD: "OyW3idItbOxLlrBoiB9pvIdHP"
+    MAILER_CONFIGDB_PASSWORD: "dGkZZiyBNdkLKq1t7dqjgsSPg"
+    MAILER_MASTERTOKEN: "a9c28b2d-d962-441f-8928-e042d0af06c9"
+  replicaCount: 2
+
+imagecredentials:
+  name: "registry.nefrosovet.ru"
+  registry: "registry.nefrosovet.ru"
+  username: "docker-importer"
+  password: "8DWnQmuRht"
+
+image:
+  repository: "registry.nefrosovet.ru/maximus-platform/mailer"
+  pullPolicy: "IfNotPresent"
+
+service:
+  annotations:
+    prometheus.io/scrape: "false"
+  type: ClusterIP
+
+ingress:
+  annotations:
+    prometheus.io/scrape: "false"
+    ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: nginx
+  hosts:
+  - test.maximus.lan

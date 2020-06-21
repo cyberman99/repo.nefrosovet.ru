@@ -1,0 +1,716 @@
+openapi: 3.0.0
+info:
+  version: 2.0.0
+  title: Profile API
+  description: |
+    #### RESTFUL Profile API
+servers:
+  - url: http://profile.maximus.lan/
+
+paths:
+  /authorize:
+    post:
+      operationId: authorize
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Auth_params"
+        required: true
+      tags:
+        - Auth
+      summary: Аутентификация пользователя
+      responses:
+        "200":
+          $ref: "#/components/responses/Authorize_200"
+        "400":
+          $ref: "#/components/responses/Authorize_400"
+        "401":
+          $ref: "#/components/responses/Base_401"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+  /users:
+    get:
+      operationId: getUsers
+      tags:
+        - User
+      summary: Коллекция пользователей
+      responses:
+        "200":
+          $ref: "#/components/responses/User_200"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+    post:
+      operationId: postUsers
+      requestBody:
+        $ref: "#/components/requestBodies/User"
+      tags:
+        - User
+      summary: Создание пользователя
+      responses:
+        "200":
+          $ref: "#/components/responses/User_200"
+        "400":
+          $ref: "#/components/responses/User_400"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+  "/users/{userID}":
+    parameters:
+      - $ref: "#/components/parameters/userID"
+    get:
+      operationId: getUser
+      tags:
+        - User
+      summary: Информация о пользователе
+      responses:
+        "200":
+          $ref: "#/components/responses/User_200"
+        "404":
+          $ref: "#/components/responses/Base_404"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+    patch:
+      operationId: patchUser
+      requestBody:
+        $ref: "#/components/requestBodies/User"
+      tags:
+        - User
+      summary: Изменение данных пользователя
+      responses:
+        "200":
+          $ref: "#/components/responses/User_200"
+        "400":
+          $ref: "#/components/responses/User_400"
+        "404":
+          $ref: "#/components/responses/Base_404"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+  "/users/{userID}/settings":
+    parameters:
+      - $ref: "#/components/parameters/userID"
+    get:
+      operationId: getUserSettings
+      tags:
+        - User
+      summary: Коллекция настроек пользователя
+      responses:
+        "200":
+          $ref: "#/components/responses/User_settings_200"
+        "404":
+          $ref: "#/components/responses/Base_404"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+    patch:
+      operationId: patchUserSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Settings_params"
+        required: true
+      tags:
+        - User
+      summary: Изменение настроек пользователя
+      responses:
+        "200":
+          $ref: "#/components/responses/User_settings_200"
+        "400":
+          $ref: "#/components/responses/User_settings_400"
+        "404":
+          $ref: "#/components/responses/Base_404"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+  "/users/{userID}/contacts":
+    parameters:
+      - $ref: "#/components/parameters/userID"
+    get:
+      operationId: getUserContacts
+      tags:
+        - User
+      summary: Коллекция контактных данных пользователя
+      responses:
+        "200":
+          $ref: "#/components/responses/User_contacts_200"
+        "404":
+          $ref: "#/components/responses/Base_404"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+    post:
+      operationId: postUserContacts
+      requestBody:
+        $ref: "#/components/requestBodies/UserContacts"
+      tags:
+        - User
+      summary: Создание контактных данных пользователя
+      responses:
+        "200":
+          $ref: "#/components/responses/User_contacts_200"
+        "400":
+          $ref: "#/components/responses/User_contacts_400"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+  "/users/{userID}/contacts/{contactID}":
+    parameters:
+      - $ref: "#/components/parameters/userID"
+      - $ref: "#/components/parameters/contactID"
+    patch:
+      operationId: patchUserContacts
+      requestBody:
+        $ref: "#/components/requestBodies/UserContacts"
+      tags:
+        - Contact
+      summary: Изменение контактных данных пользователя
+      responses:
+        "200":
+          $ref: "#/components/responses/User_contacts_200"
+        "400":
+          $ref: "#/components/responses/User_contacts_400"
+        "404":
+          $ref: "#/components/responses/Base_404"
+        "405":
+          $ref: "#/components/responses/Base_405"
+        "500":
+          $ref: "#/components/responses/Base_500"
+
+components:
+  parameters:
+    userID:
+      name: userID
+      in: path
+      description: Идентификатор пользователя
+      required: true
+      schema:
+        type: string
+    contactID:
+      name: contactID
+      in: path
+      description: Идентификатор контактных данных пользователя
+      required: true
+      schema:
+        type: string
+  requestBodies:
+    User:
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/User_params"
+              - $ref: "#/components/schemas/Password_params"
+      required: true
+    UserContacts:
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/User_contact_with_verify"
+      required: true
+  responses:
+    Base_200:
+      description: SUCCESS
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Success"
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items: {}
+                required:
+                  - data
+    Base_400:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_400"
+              - type: object
+                properties:
+                  message:
+                    type: string
+                    example: Authentication failure
+                  errors:
+                    type: object
+                    properties:
+                      validation:
+                        type: object
+                      core:
+                        type: string
+                      json:
+                        type: string
+                required:
+                  - message
+                  - errors
+    Base_401:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_401"
+    Base_404:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_404"
+    Base_405:
+      description: Invalid Method
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_405"
+    Base_500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_500"
+    Authorize_200:
+      description: Результат аутентификации
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Success"
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            userID:
+                              type: string
+                              example: 59581897-ad75-412f-94a5-5c35ace8af6d
+                              description: Идентификатор пользователя
+                          required:
+                            - userID
+    Authorize_400:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_400"
+              - type: object
+              - properties:
+                  errors:
+                    type: object
+                    properties:
+                      validation:
+                        type: object
+                        properties:
+                          login:
+                            type: string
+                            example: string
+                            enum:
+                              - string
+                              - required
+                              - min
+                          password:
+                            type: string
+                            example: string
+                            enum:
+                              - string
+                              - required
+                              - min
+    User_200:
+      description: Коллекция перс. данных пользователя
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Success"
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User_params_with_id"
+    User_400:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_400"
+              - type: object
+              - properties:
+                  errors:
+                    type: object
+                    properties:
+                      validation:
+                        type: object
+                        properties:
+                          firstName:
+                            type: string
+                            example: string
+                            enum:
+                              - string
+                              - min
+                          lastName:
+                            type: string
+                            example: string
+                            enum:
+                              - string
+                              - min
+                          middleName:
+                            type: string
+                            example: string
+                            enum:
+                              - string
+                              - min
+                          password:
+                            type: string
+                            example: string
+                            enum:
+                              - string
+                              - min
+    User_settings_200:
+      description: Коллекция настроек пользователя
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Success"
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Settings_params"
+    User_settings_400:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_400"
+              - type: object
+              - properties:
+                  errors:
+                    type: object
+                    properties:
+                      validation:
+                        type: object
+                        properties:
+                          locale:
+                            type: string
+                            example: string
+                            enum:
+                              - string
+                              - min
+                              - format
+                          2FAChannelType:
+                            type: string
+                            example: string
+                            enum:
+                              - enum
+                              - string
+    User_contacts_200:
+      description: Коллекция контактных данных пользователя
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Success"
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/User_contact_with_id"
+    User_contacts_400:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_400"
+              - type: object
+              - properties:
+                  errors:
+                    type: object
+                    properties:
+                      validation:
+                        type: object
+                        properties:
+                          typeCODE:
+                            type: string
+                            example: string
+                            enum:
+                              - enum
+                              - string
+                          value:
+                            type: string
+                            example: string
+                            enum:
+                              - string
+                              - min
+                              - format
+                              - unique
+  schemas:
+    Base:
+      description: Возвращает статус ответа
+      type: object
+      properties:
+        version:
+          type: string
+          description: Версия ответа сервиса
+          example: 2.0.0
+      required:
+        - version
+    Success:
+      description: Все хорошо
+      allOf:
+        - $ref: "#/components/schemas/Base"
+        - type: object
+          title: Success
+          properties:
+            message:
+              type: string
+              description: сообщение ответа
+              example: SUCCESS
+            errors:
+              type: array
+              items: {}
+              example: null
+          required:
+            - message
+            - errors
+    Error:
+      description: Все плохо
+      allOf:
+        - $ref: "#/components/schemas/Base"
+        - type: object
+          title: Error
+          properties:
+            data:
+              example: null
+          required:
+            - data
+    Error_400:
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          title: Error_Error_400
+          properties:
+            message:
+              type: string
+              example: Validation error
+            errors:
+              type: array
+              items: {}
+          required:
+            - message
+            - errors
+    Error_401:
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          title: Error_401
+          properties:
+            message:
+              type: string
+              description: сообщение ответа
+              example: Invalid token
+            errors:
+              type: array
+              items: {}
+          required:
+            - message
+            - errors
+    Error_404:
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          title: Error_Error_404
+          properties:
+            message:
+              type: string
+              description: сообщение ответа
+              example: Entity not found
+            errors:
+              type: array
+              items: {}
+              example: null
+          required:
+            - message
+            - errors
+    Error_405:
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          title: Error_Error_405
+          properties:
+            message:
+              type: string
+              description: сообщение ответа
+              example: Method ${METHOD} not allowed
+            errors:
+              type: array
+              items: {}
+              example: null
+    Error_500:
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          title: Error_Error_500
+          properties:
+            message:
+              type: string
+              description: сообщение ответа
+              example: Internal server error
+            errors:
+              example: null
+          required:
+            - message
+            - errors
+    Auth_params:
+      title: Auth_user_params
+      properties:
+        login:
+          type: string
+          description: Логин пользователя
+          example: user
+          minLength: 1
+        password:
+          type: string
+          description: Пароль пользователя
+          example: xxxxxxxx
+          minLength: 1
+      required:
+        - login
+        - password
+    User_params:
+      title: User_params
+      properties:
+        firstName:
+          type: string
+          description: Имя пользователя
+          example: Иван
+          minLength: 1
+          nullable: true
+        lastName:
+          type: string
+          description: Фамилия пользователя
+          example: " Иванов"
+          minLength: 1
+          nullable: true
+        middleName:
+          type: string
+          description: Отчество пользователя
+          example: " Иванович"
+          minLength: 1
+          nullable: true
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/User_contact_with_verify"
+    User_contact:
+      title: User_contact
+      properties:
+        typeCODE:
+          type: string
+          enum:
+            - EMAIL
+            - MOBILE
+          description: Тип контактных данных
+          example: EMAIL
+        value:
+          type: string
+          description: Контактные данные
+          example: user@company.com
+    User_contact_with_verify:
+      allOf:
+        - type: object
+          properties:
+            verified:
+              type: boolean
+              description: Статус подтвержденности
+              example: false
+        - $ref: "#/components/schemas/User_contact"
+    Password_params:
+      title: Password_params
+      properties:
+        password:
+          type: string
+          description: Пароль пользователя
+          example: xxxxxxxx
+          minLength: 1
+          nullable: true
+    Settings_params:
+      title: Settings_params
+      properties:
+        locale:
+          type: string
+          description: Alpha-3 кодировка локали
+          example: RUS
+          minLength: 1
+        2FAChannelType:
+          type: string
+          description: Тип канала OTP
+          example: SMS
+          enum:
+            - SMS
+            - EMAIL
+            - TELEGRAM
+            - VIBER
+            - NONE
+          nullable: true
+    User_params_with_id:
+      allOf:
+        - type: object
+          properties:
+            ID:
+              type: string
+              description: Идентификатор пользователя
+              example: 50c4df8a-ab71-4d40-855f-dd553f856a20
+        - $ref: "#/components/schemas/User_params"
+        - type: object
+          required:
+            - firstName
+            - lastName
+            - middleName
+            - contacts
+    User_contact_with_id:
+      allOf:
+        - type: object
+          properties:
+            ID:
+              type: string
+              description: Идентификатор контактных данных пользователя
+              example: 40c4df8a-ab71-4d40-855f-dd543f856a20
+        - $ref: "#/components/schemas/User_contact_with_verify"
+        - type: object
+          required:
+            - typeCODE
+            - value
+            - verified

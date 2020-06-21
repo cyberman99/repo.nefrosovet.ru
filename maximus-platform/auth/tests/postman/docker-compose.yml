@@ -1,0 +1,90 @@
+version: '3.7'
+networks:
+ auth:
+
+services:
+ app:
+  image: "${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}"
+  container_name: "auth_app-${CI_JOB_ID}"
+  labels:
+   log.label: "auth_app"
+  environment:
+   - AUTH_ADMINPASSWORD=rootADMINpass
+   - AUTH_TOKENSECRET=xejzfoqlSZ
+   - AUTH_TTL_ACCESSTOKEN=60
+   - AUTH_TTL_REFRESHTOKEN=600
+   - AUTH_HTTP_HOST=0.0.0.0
+   - AUTH_HTTP_PORT=80
+   - AUTH_CONFIGDB_HOST=config_db
+   - AUTH_CONFIGDB_PORT=27017
+   - AUTH_CONFIGDB_DATABASE=auth
+   - AUTH_EVENTDB_HOST=event_db
+   - AUTH_EVENTDB_PORT=8086
+   - AUTH_EVENTDB_DATABASE=auth
+   - AUTH_EVENTDB_LOGIN=auth
+   - AUTH_EVENTDB_PASSWORD=FqTfXq7e5d
+   - AUTH_LOGGING_FORMAT=JSON
+   - AUTH_LOGGING_OUTPUT=STDOUT
+   - AUTH_LOGGING_LEVEL=DEBUG
+   - AUTH_SENTRYDSN=https://6bf4f61c47bf42a5bf91c984a16c3bf0@sentry.diacare-soft.ru/4
+  networks:
+   - auth
+  ports:
+   - 80
+  depends_on:
+   - config_db
+   - event_db
+
+ config_db:
+   image: mongo:4.2
+   container_name: "auth_config_db-${CI_JOB_ID}"
+   environment:
+     - MONGO_DATA_DIR=/data/db
+     - MONGO_LOG_DIR=/dev/null
+   networks:
+     - auth
+   ports:
+     - 27017
+
+ event_db:
+   image: influxdb
+   container_name: "auth_event_db-${CI_JOB_ID}"
+   networks:
+     - auth
+   ports:
+     - 8086
+   environment:
+     - INFLUXDB_DB=auth
+     - INFLUXDB_USER=auth
+     - INFLUXDB_USER_PASSWORD=FqTfXq7e5d
+
+ filebeat:
+   container_name: "filebeat-${CI_JOB_ID}"
+   user: root
+   build:
+    context: .
+    dockerfile: Dockerfile.filebeat
+    labels:
+     - "image.version=${CI_JOB_ID}"
+   environment:
+    PIPELINE_ID: "${CI_PIPELINE_ID}"
+    JOB_ID: "${CI_JOB_ID}"
+   networks:
+    - auth
+   volumes:
+    - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+
+ postman:
+  image: newman
+  container_name: "postman-${CI_JOB_ID}"
+  build:
+   context: .
+   labels:
+    - "image.version=${CI_JOB_ID}"
+  networks:
+   - auth
+  depends_on:
+   - app
+   - index_app
+  command: run /storage/collection.json --color on --global-var authHost=http://app --global-var indexHost=http://index_app

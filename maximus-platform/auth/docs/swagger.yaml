@@ -1,0 +1,1909 @@
+---
+swagger: '2.0'
+info:
+  version: "2.0.0"
+  title: Auth API
+  description: |
+    #### RESTFUL Auth API
+schemes:
+  - http
+host: "auth.maximus.lan"
+basePath: /
+
+parameters:
+  roleID:
+    name: roleID
+    in: path
+    description: "Идентификатор роли"
+    type: string
+    required: true
+
+  userID:
+    name: userID
+    in: path
+    type: string
+    description: "Идентификатор пользователя"
+    required: true
+
+  eventID:
+    name: eventID
+    in: path
+    type: string
+    description: "Идентификатор события"
+    required: true
+
+  clientID:
+    name: clientID
+    in: path
+    type: string
+    description: "Идентификатор клиента"
+    required: true
+
+  backendID:
+    name: backendID
+    in: path
+    type: string
+    description: "Идентификатор бэкенда"
+    required: true
+
+  redirectURI:
+    name: redirectURI
+    in: query
+    type: string
+    description: "URI, на который будет перенаправлен клиент после аутентификации"
+    required: true
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+
+paths:
+  /whoami:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Token
+      summary: Информация о токене
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Token_response_200"
+        401:
+          $ref: "#/responses/Base_response_401"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /jwk:
+    get:
+      tags:
+        - JWK
+      summary: Информация о ключе
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/JWK_response_200"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /admin:
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Admin_params"
+      tags:
+        - Admin
+      summary: Редактирование админской учетной записи
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /user:
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Auth_user_params"
+      tags:
+        - Auth
+      summary: Аутентификация пользователя по логин-паролю
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Auth_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        401:
+          $ref: "#/responses/Base_response_401"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /client:
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Auth_client_params"
+      tags:
+        - Auth
+      summary: Аутентификация клиента
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Auth_response_200"
+        401:
+          $ref: "#/responses/Base_response_401"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /identify:
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Identify_params"
+      tags:
+        - Auth
+      summary: Идентификация пользователя
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Auth_response_200"
+        401:
+          $ref: "#/responses/Base_response_401"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /refresh:
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Auth_refresh_params"
+      tags:
+        - Auth
+      summary: Регенерация токенов
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Auth_response_200"
+        401:
+          $ref: "#/responses/Base_response_401"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /oauth2/{backendID}:
+    get:
+      parameters:
+        - $ref: "#/parameters/backendID"
+        - $ref: "#/parameters/redirectURI"
+      tags:
+        - Auth
+      summary: Получение URI для аутентификации по OAuth2
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/OAuthPath_response_200"
+        400:
+          $ref: '#/responses/Base_response_400'
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /oauth2/{backendID}/consent:
+    post:
+      parameters:
+        - $ref: "#/parameters/backendID"
+        - name: body
+          in: body
+          schema:
+            allOf:
+              - $ref: "#/definitions/OAuth2_consent_params"
+      tags:
+        - Auth
+      summary: Обмен authorizationCode на access_token и refresh_token
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Auth_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /roles:
+    get:
+      tags:
+        - Role
+      summary: Коллекция ролей
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Role_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    post:
+      tags:
+        - Role
+      summary: Создание роли
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Role_params"
+      responses:
+        200:
+          $ref: "#/responses/Role_response_200"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /roles/{roleID}:
+    parameters:
+      - $ref: "#/parameters/roleID"
+    get:
+      tags:
+        - Role
+      summary: Информация о роли
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Role_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    put:
+      tags:
+        - Role
+      summary: Изменение роли
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              description:
+                type: string
+                description: "Описание роли"
+                example: "Рядовая медсестра"
+      responses:
+        200:
+          $ref: "#/responses/Role_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    delete:
+      tags:
+        - Role
+      summary: Удаление роли
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Role_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /roles/{roleID}/users:
+    parameters:
+      - $ref: "#/parameters/roleID"
+    get:
+      tags:
+        - Role
+      summary: Коллекция пользователей роли
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/User_Role_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /roles/{roleID}/users/{userID}:
+    parameters:
+      - $ref: "#/parameters/roleID"
+      - $ref: "#/parameters/userID"
+    post:
+      tags:
+        - Role
+      summary: Добавление пользователя в роль
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/User_Role_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    delete:
+      tags:
+        - Role
+      summary: Удаление пользователя из роли
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /events:
+    get:
+      tags:
+        - Event
+      summary: Коллекция событий
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Event_response_200"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /events/{eventID}:
+    parameters:
+      - $ref: "#/parameters/eventID"
+    get:
+      tags:
+        - Event
+      summary: Информация о событии
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Event_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /clients:
+    get:
+      tags:
+        - Client
+      summary: Коллекция клиентов
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Client_response_200"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    post:
+      tags:
+        - Client
+      summary: Создание клиента
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Client_params"
+              - $ref: "#/definitions/Password_object"
+      responses:
+        200:
+          $ref: "#/responses/Client_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /clients/{clientID}:
+    parameters:
+      - $ref: "#/parameters/clientID"
+    get:
+      tags:
+        - Client
+      summary: Информация о клиенте
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Client_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    put:
+      tags:
+        - Client
+      summary: Изменение клиента
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Client_params"
+              - $ref: "#/definitions/Password_object"
+      responses:
+        200:
+          $ref: "#/responses/Client_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    patch:
+      tags:
+        - Client
+      summary: Изменение клиента
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Patch_client_params"
+      responses:
+        200:
+          $ref: "#/responses/Client_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    delete:
+      tags:
+        - Client
+      summary: Удаление клиента
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /backends:
+    get:
+      tags:
+        - Backend
+      summary: Коллекция бэкендов
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /backends/{backendID}:
+    parameters:
+      - $ref: "#/parameters/backendID"
+    get:
+      tags:
+        - Backend
+      summary: Информация о бэкенде
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    delete:
+      tags:
+        - Backend
+      summary: Удаление бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /backends/{backendID}/test:
+    parameters:
+      - $ref: "#/parameters/backendID"
+    get:
+      tags:
+        - Backend
+      summary: Тест коннекта к бэкенду
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Backend_test_response"
+        400:
+          $ref: "#/responses/Backend_test_response"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /backends/{backendID}/groups:
+    parameters:
+      - $ref: "#/parameters/backendID"
+    get:
+      tags:
+        - Backend
+      summary: Коллекция соответствия групп бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Backend_group_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    post:
+      tags:
+        - Backend
+      summary: Редактироание соответствия групп бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: array
+            items:
+              allOf:
+                - $ref: "#/definitions/Backend_group_params"
+      responses:
+        200:
+          $ref: "#/responses/Backend_group_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    delete:
+      tags:
+        - Backend
+      summary: Удаление соответствия групп бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Backend_group_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /backends/ldap:
+    post:
+      tags:
+        - Backend
+      summary: Создание LDAP бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Backend_ldap_params"
+              - $ref: "#/definitions/Password_object"
+              - $ref: "#/definitions/Backend_params"
+      responses:
+        200:
+          $ref: "#/responses/Backend_ldap_response_200"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /backends/ldap/{backendID}:
+    parameters:
+      - $ref: "#/parameters/backendID"
+    put:
+      tags:
+        - Backend
+      summary: Изменение LDAP бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Backend_ldap_params"
+              - $ref: "#/definitions/Password_object"
+              - $ref: "#/definitions/Backend_params"
+      responses:
+        200:
+          $ref: "#/responses/Backend_ldap_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    patch:
+      tags:
+        - Backend
+      summary: Изменение LDAP бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Backend_patch_ldap_params"
+      responses:
+        200:
+          $ref: "#/responses/Backend_ldap_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /backends/oauth2:
+    post:
+      tags:
+        - Backend
+      summary: Создание oauth2 бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Backend_oauth2_params"
+              - $ref: "#/definitions/Backend_params"
+              - $ref: "#/definitions/Backend_oauth2_ID_param"
+      responses:
+        200:
+          $ref: "#/responses/Backend_oauth2_response_200"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /backends/oauth2/{backendID}:
+    parameters:
+      - $ref: "#/parameters/backendID"
+    put:
+      tags:
+        - Backend
+      summary: Изменение oauth2 бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Backend_oauth2_params"
+              - $ref: "#/definitions/Backend_params"
+              - $ref: "#/definitions/Backend_oauth2_ID_param"
+      responses:
+        200:
+          $ref: "#/responses/Backend_oauth2_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    patch:
+      tags:
+        - Backend
+      summary: Изменение oauth2 бэкенда
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Backend_patch_oauth2_params"
+              - $ref: "#/definitions/Backend_oauth2_ID_param"
+      responses:
+        200:
+          $ref: "#/responses/Backend_oauth2_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /flow:
+    get:
+      tags:
+        - Backend
+      summary: Коллекция последовательности аутентификации
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Flow_response_200"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    post:
+      tags:
+        - Backend
+      summary: Редактирование последовательности аутентификации
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: array
+            items:
+              allOf:
+                - $ref: "#/definitions/Flow_params"
+      responses:
+        200:
+          $ref: "#/responses/Flow_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+responses:
+  Base_response_400:
+    description: "Коллекция авторизации"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_400_data"
+        - type: object
+          properties:
+            message:
+              type: string
+              example: "Authentication failure"
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+                core:
+                  type: string
+                json:
+                  type: string
+          required:
+            - message
+            - errors
+
+  Base_response_401:
+    description: "Access denied"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_401_data"
+
+  Base_response_404:
+    description: "Not found"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_404_data"
+
+  Base_response_405:
+    description: "Invalid Method"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_405_data"
+
+  Base_response_500:
+    description: "Internal server error"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_500_data"
+
+  Base_response_200:
+    description: "SUCCESS"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items: {}
+          required:
+            - data
+
+  OAuthPath_response_200:
+    description: "Результат запроса пути для аутентификации"
+    schema:
+      allOf:
+        - type: object
+          properties:
+            OAuth2Path:
+              type: string
+              description: "Путь для аутентификации клиента"
+              example: "https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=123456789012-9sj2937kja2pdj5he21bs33lb409udhd.apps.googleusercontent.com&redirect_uri=http%3A%2F%nefrosovet.ru%3A8484%2Foauth2%2Fgoogle%2Fcallback&response_type=code&scope=email+profile+openid"
+          required:
+            - OAuth2Path
+  Auth_response_200:
+    description: "Результат аутентификации"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6ImFkbWluIi...bfTSMwuonKU8Wrs00b6hLYfHLEeM"
+                        description: "Токен доступа"
+                      refreshToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6ImluIiwiZXhwIjox...49_ysqm_ZFDj0Y5RfnC-AY"
+                        description: "Токен обновления"
+                    required:
+                      - accessToken
+                      - refreshToken
+
+  Token_response_200:
+    description: "Инфо о токене"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор субъекта"
+                      type:
+                        type: string
+                        description: "Тип субъекта"
+                        example: "USER"
+                        enum:
+                          - "CLIENT"
+                          - "USER"
+                      roles:
+                        type: array
+                        example: [ NURSE ]
+                        description: "Роли пользователя"
+                        items:
+                          type: string
+          required:
+            - data
+
+  JWK_response_200:
+    description: "Информация о ключах подписи токенов"
+    schema:
+      allOf:
+        - type: object
+          properties:
+            keys:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      kid:
+                        type: string
+                        example: "AyM1SysPpbyDfgZld3umj1qzKjAzZr1Z9CAow"
+                        description: "Идентификатор ключа"
+                      alg:
+                        type: string
+                        description: "Криптографический алгоритм подписи"
+                        example: "HS256"
+                        enum:
+                          - "HS256"
+                      k:
+                        type: string
+                        example: "AyM1SysPpbyDfgZld3umj1qzKjAzZr1Z9CAow"
+                        description: "Криптографический ключ"
+                      kty:
+                        type: string
+                        example: "oct"
+                        description: "..."
+                    required:
+                      - kid
+                      - alg
+                      - k
+                      - kty
+          required:
+            - keys
+
+  Role_response_200:
+    description: "Объект роли"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Role_params"
+                type: object
+                properties:
+                  default:
+                    type: boolean
+                required:
+                  - default
+          required:
+            - data
+
+  User_Role_response_200:
+    description: "Коллекция пользователей"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: string
+                description: "Массив идентификаторов пользователей"
+                example: ["d00962f4-d052-4fb4-99d6-91b56208e72f"]
+          required:
+            - data
+
+  Client_response_200:
+    description: "Объект клиента"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор клиента"
+                  - $ref: "#/definitions/Client_params"
+          required:
+            - data
+
+  Event_response_200:
+    description: "Коллекция событий"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Event_params"
+          required:
+            - data
+
+  Backend_test_response:
+    description: "Объект теста бэкенда"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Backend_test_params"
+                x-go-name: test-data-item
+          required:
+            - data
+
+  Backend_attribute_response_200:
+    description: "Объект атрибутов бэкенда"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              allOf:
+                - $ref: "#/definitions/Backend_attribute_params"
+          required:
+            - data
+
+  Backend_group_response_200:
+    description: "Объект групп бэкенда"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Backend_group_params"
+          required:
+            - data
+
+  Backend_ldap_response_200:
+    description: "Объект LDAP бэкенда"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/BackendID_object"
+                  - $ref: "#/definitions/Backend_ldap_params"
+                  - $ref: "#/definitions/Backend_params"
+                x-go-name: ldap-data-item
+          required:
+            - data
+
+  Backend_oauth2_response_200:
+    description: "Объект oauth2 бэкенда"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/BackendID_object"
+                  - $ref: "#/definitions/Backend_oauth2_params"
+                  - $ref: "#/definitions/Backend_params"
+                x-go-name: oauth2-data-item
+          required:
+            - data
+
+  Flow_response_200:
+    description: "Объект последовательности авторизации"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Flow_params"
+                x-go-name: flow-data-item
+          required:
+            - data
+
+definitions:
+  Base_data:
+    description: Возвращает статус ответа
+    type: object
+    properties:
+      version:
+        type: string
+        description: "Версия ответа сервиса"
+        example: "2.0.0"
+    required:
+      - version
+
+  Success_data:
+    description: Все хорошо
+    allOf:
+      - $ref: "#/definitions/Base_data"
+      - type: object
+        title: Success_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "SUCCESS"
+          errors:
+            type: array
+            items: {}
+            example: null
+        required:
+          - message
+          - errors
+
+  Error_data:
+    description: Все плохо
+    allOf:
+      - $ref: "#/definitions/Base_data"
+      - type: object
+        title: Error_data
+        properties:
+          data:
+            example: null
+        required:
+          - data
+
+  Error_400_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_400_data
+        properties:
+          message:
+            type: string
+            example: "Validation error"
+          errors:
+            type: array
+            items: {}
+        required:
+          - message
+          - errors
+
+  Error_401_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_401_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Invalid token"
+          errors:
+            type: array
+            items: {}
+        required:
+          - message
+          - errors
+
+  Error_404_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_404_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Entity not found"
+          errors:
+            type: array
+            items: {}
+            example: null
+        required:
+          - message
+          - errors
+
+  Error_405_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_405_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Method ${METHOD} not allowed"
+          errors:
+            example: null
+
+  Error_500_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_500_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Internal server error"
+          errors:
+            example: null
+        required:
+          - message
+          - errors
+
+  BackendID_object:
+    title: BackendID_object
+    properties:
+      ID:
+        type: string
+        description: "Идентификатор бэкенда"
+        example: "6931ba11-2a08-4bf5-b9b0-aa4ed3046331"
+
+  Password_object:
+    title: Password_object
+    properties:
+      password:
+        type: string
+        minLength: 1
+        example: "d00962456208e72f"
+        description: "Пароль пользователя"
+    required:
+      - password
+
+  Admin_params:
+    title: Admin_params
+    properties:
+      password:
+        type: string
+        minLength: 1
+        description: "Пароль пользователя"
+        example: "xxxxxxxx"
+    required:
+      - password
+
+  Auth_user_params:
+    title: Auth_user_params
+    properties:
+      login:
+        type: string
+        description: "Логин пользователя"
+        example: "user"
+      password:
+        type: string
+        description: "Пароль пользователя"
+        example: "xxxxxxxx"
+    required:
+      - login
+      - password
+
+  Identify_params:
+    title: Identify_params
+    properties:
+      user:
+        type: string
+        description: "Тип пользователя"
+        example: "EMPLOYEE"
+        enum:
+          - "PATIENT"
+          - "EMPLOYEE"
+      cardNumber:
+        type: string
+        description: "Номер смарт-карты"
+        example: "111222333444555"
+    required:
+      - cardNumber
+
+  Auth_client_params:
+    title: Auth_client_params
+    properties:
+      clientID:
+        type: string
+        description: "Идентификатор клиента"
+        example: "870d16eb-891c-4e96-afbf-e830ebf3be34"
+      password:
+        type: string
+        description: "Пароль клиента"
+        example: "xxxxxxxx"
+    required:
+      - clientID
+      - password
+
+  Auth_refresh_params:
+    title: Auth_refresh_params
+    properties:
+      refreshToken:
+        type: string
+        description: "Токен обновления accessToken"
+        example: "eyJhbGciOiJ...EZCIv5YkunsQBS8"
+    required:
+      - refreshToken
+  OAuth2_consent_params:
+    title: OAuth2_consent_params
+    properties:
+      authorizationCode:
+        type: string
+        description: "Код авторизации для дальнейшго обмена на access_token и refresh_token"
+        example: "4%2FWAH3WKmebgxdEPdPBOqFCHW0_5VS6nU-bjAdW304eYsNTkVUCHT6jv8Rh00-m7I4N-arCaJK3D3ZVnzmxPBiCno"
+      redirectURI:
+        type: string
+        description: "URI, на который был перенаправлен клиент после аутентификации"
+
+  Role_params:
+    title: Role_params
+    properties:
+      ID:
+        type: string
+        description: "Идентификатор роли"
+        example: "NURSE"
+      description:
+        type: string
+        description: "Описание роли"
+        example: "Рядовая медсестра"
+    required:
+      - ID
+      - description
+
+  Client_params:
+    title: Client_params
+    properties:
+      description:
+        type: string
+        description: "Описание клиента"
+        example: "MX-071"
+    required:
+      - description
+
+  Patch_client_params:
+    title: Patch_client_params
+    properties:
+      description:
+        type: string
+        description: "Описание клиента"
+        example: "MX-071"
+        x-nullable: true
+      password:
+        type: string
+        minLength: 1
+        example: "d00962456208e72f"
+        description: "Пароль пользователя"
+        x-nullable: true
+
+  Backend_params:
+    title: Backend_params
+    properties:
+      description:
+        type: string
+        description: "Описание бэкенда"
+        example: "MS AD"
+      attributes:
+        allOf:
+          - $ref: "#/definitions/Backend_attribute_params"
+    required:
+      - description
+      - attributes
+
+  Backend_ldap_params:
+    title: Backend_ldap_params
+    properties:
+      sync:
+        type: string
+        description: "Сущность синхронизации"
+        example: "PATIENT"
+        enum:
+          - "PATIENT"
+          - "EMPLOYEE"
+      host:
+        type: string
+        description: "Ldap хост"
+        example: "127.0.0.1"
+      port:
+        type: integer
+        description: "Ldap порт"
+        example: 389
+      cipher:
+        type: string
+        description: "Использование шифрования"
+        example: "TLS"
+        enum:
+          - "NONE"
+          - "TLS"
+          - "STARTTLS"
+        default: "NONE"
+      bindDN:
+        type: string
+        description: "DN пользователя"
+        example: "cn=Administraytor,ou=Users,o=Diacare-Soft,dc=lan"
+      baseDN:
+        type: string
+        description: "База поиска"
+        example: "o=Diacare-Soft,dc=lan"
+      filter:
+        type: string
+        description: "Фильтр поиска"
+        example: "(|(userPrincipalName=%u@diacare.lan)(mobile=%u))"
+    required:
+      - host
+      - port
+      - bindDN
+      - baseDN
+      - filter
+      - sync
+
+
+  Backend_patch_ldap_params:
+    title: Backend_patch_ldap_params
+    properties:
+      sync:
+        type: string
+        description: "Сущность синхронизации"
+        example: "PATIENT"
+        enum:
+          - "PATIENT"
+          - "EMPLOYEE"
+        x-nullable: true
+      description:
+        type: string
+        description: "Описание бэкенда"
+        example: "MS AD"
+        x-nullable: true
+      host:
+        type: string
+        description: "Ldap хост"
+        example: "127.0.0.1"
+        x-nullable: true
+      port:
+        type: integer
+        description: "Ldap порт"
+        example: 389
+        x-nullable: true
+      cipher:
+        type: string
+        description: "Использование шифрования"
+        example: "TLS"
+        enum:
+          - "NONE"
+          - "TLS"
+          - "STARTTLS"
+        default: "NONE"
+      bindDN:
+        type: string
+        description: "DN пользователя"
+        example: "cn=Administraytor,ou=Users,o=Diacare-Soft,dc=lan"
+        x-nullable: true
+      password:
+        type: string
+        example: "d00962456208e72f"
+        description: "Пароль пользователя"
+        x-nullable: true
+      baseDN:
+        type: string
+        description: "База поиска"
+        example: "o=Diacare-Soft,dc=lan"
+        x-nullable: true
+      filter:
+        type: string
+        description: "Фильтр поиска"
+        example: "(|(userPrincipalName=%u@diacare.lan)(mobile=%u))"
+        x-nullable: true
+
+  Backend_oauth2_params:
+    title: Backend_oauth2_params
+    properties:
+      provider:
+        type: string
+        description: "Название сервиса, на котором авторизуемся"
+        example: "GITHUB"
+        enum:
+          - "GITHUB"
+          - "GOOGLE"
+          - "EMPLOYEE"
+          - "YANDEX"
+          - "ESIA"
+      sync:
+        type: string
+        description: "Сущность синхронизации"
+        example: "PATIENT"
+        enum:
+          - "PATIENT"
+          - "EMPLOYEE"
+      clientID:
+        type: string
+        description: "Идентификатор приложения"
+        example: "testID"
+      clientSecret:
+        type: string
+        description: "Секретный ключ приложения"
+        example: "testSecret"
+    required:
+      - provider
+      - clientID
+      - clientSecret
+      - sync
+
+  Backend_patch_oauth2_params:
+    title: Backend_patch_oauth2_params
+    properties:
+      description:
+        type: string
+        description: "Описание бэкенда"
+        example: "MS AD"
+        x-nullable: true
+      provider:
+        type: string
+        description: "Название сервиса, на котором авторизуемся"
+        example: "GITHUB"
+        enum:
+          - "GITHUB"
+          - "GOOGLE"
+          - "EMPLOYEE"
+          - "YANDEX"
+          - "ESIA"
+        x-nullable: true
+      sync:
+        type: string
+        description: "Сущность синхронизации"
+        example: "PATIENT"
+        enum:
+          - "PATIENT"
+          - "EMPLOYEE"
+        x-nullable: true
+      clientID:
+        type: string
+        description: "Идентификатор приложения"
+        example: "testID"
+        x-nullable: true
+      clientSecret:
+        type: string
+        description: "Секретный ключ приложения"
+        example: "testSecret"
+        x-nullable: true
+
+  Backend_oauth2_ID_param:
+    title: Backend_oauth2_ID_param
+    properties:
+      ID:
+        type: string
+        description: "Кастомный ID бэкенда (Для OAuth)"
+        example: "mainGoogle"
+
+  Backend_test_params:
+    title: Backend_test_params
+    properties:
+      status:
+        type: string
+        description: "Статус коннекта к бэкенду"
+        example: "FAILED"
+        enum:
+          - "SUCCESS"
+          - "FAILED"
+      error:
+        type: string
+        description: "Детализация ошибки"
+        example: "Protocol failure"
+        x-nullable: true
+
+  Backend_attribute_params:
+    title: Backend_attribute_params
+    type: object
+    properties:
+      GUID:
+        type: object
+        allOf:
+          - $ref: "#/definitions/Backend_attribute_options"
+      username:
+        type: object
+        allOf:
+          - $ref: "#/definitions/Backend_attribute_options"
+      email:
+        type: object
+        allOf:
+          - $ref: "#/definitions/Backend_attribute_options"
+      firstName:
+        type: object
+        allOf:
+          - $ref: "#/definitions/Backend_attribute_options"
+      lastName:
+        type: object
+        allOf:
+          - $ref: "#/definitions/Backend_attribute_options"
+      patronymic:
+        type: object
+        allOf:
+          - $ref: "#/definitions/Backend_attribute_options"
+      mobile:
+        type: object
+        allOf:
+          - $ref: "#/definitions/Backend_attribute_options"
+    required:
+      - GUID
+      - username
+
+  Backend_attribute_options:
+    title: Backend_attribute_options
+    type: object
+    properties:
+      map:
+        type: string
+        description: "Атрибут на бэкенде"
+        example: "attributename"
+      sync:
+        type: string
+        description: "Политика синхронизации"
+        enum:
+          - "FIRST_LOGIN"
+          - "ALWAYS"
+    required:
+      - map
+      - sync
+
+  Backend_group_params:
+    title: Backend_group_params
+    type: object
+    properties:
+      group:
+        type: string
+        description: "Название группы"
+        example: "grG_DC-001_sec_Git"
+      roleID:
+        type: string
+        description: "Идентификатор роли"
+        example: "NURSE"
+    required:
+      - group
+      - roleID
+
+  Flow_params:
+    title: Flow_params
+    type: object
+    properties:
+      backendID:
+        type: string
+        description: "Идентификатор бэкенда"
+        example: "xxxxxxxx"
+      order:
+        type: integer
+        description: "Порядковый номер"
+        example: 1
+    required:
+      - backendID
+      - order
+
+  Event_params:
+    title: Event_params
+    properties:
+      ID:
+        type: string
+        description: "Идентификатор события"
+        example: "3fb6a05c-a9e4-412d-b8a5-4a433db20d2f"
+      created:
+        type: string
+        example: "2005-08-09T18:31:42+03:30"
+        description: "Дата-время события"
+      entityID:
+        type: string
+        description: "Идентификатор субъекта"
+        example: "ADMIN"
+        x-nullable: true
+      entityLogin:
+        type: string
+        description: "Логин субъекта"
+        example: "admin"
+        x-nullable: true
+      type:
+        type: string
+        description: "Тип события"
+        example: "USER_LOGIN"
+        enum:
+          - "USER_LOGIN"
+          - "CLIENT_LOGIN"
+          - "DRIVER_LOGIN"
+          - "USER_REFRESH"
+          - "CLIENT_REFRESH"
+      status:
+        type: string
+        description: "Статус события"
+        example: "SUCCESS"
+        enum:
+          - "SUCCESS"
+          - "FAILED"
+      IP:
+        type: string
+        description: "IP адрес источника"
+        example: "192.168.0.1"
+    required:
+      - ID
+      - created
+      - type
+      - status

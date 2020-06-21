@@ -1,0 +1,24 @@
+FROM golang:1.13-alpine
+
+# Install git
+RUN apk add --no-cache --update \
+	git
+
+# Set enviroment variable for Go lang
+ENV GOPATH=/go \
+	PATH="/go/bin:$PATH"
+
+# Copy the local package files to the container's workspace. Add to GOPATH
+ADD . /go/src/repo.nefrosovet.ru/maximus-platform/profile
+
+# Set workdir
+WORKDIR /go/src/repo.nefrosovet.ru/maximus-platform/profile
+
+# Build
+RUN go install repo.nefrosovet.ru/maximus-platform/profile/cmd/profile
+
+# Run the compiled bin by default when the container start.
+CMD /go/bin/profile
+
+# Service listens on port 80.
+EXPOSE 80

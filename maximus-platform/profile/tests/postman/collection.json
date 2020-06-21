@@ -1,0 +1,1418 @@
+{
+	"info": {
+		"_postman_id": "63bda75f-b590-4acb-a014-f29ddd833563",
+		"name": "Profile API",
+		"description": "#### RESTFUL Profile API\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "Создание пользователя 200",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "f0130018-cb56-48fe-bc06-cfdd853f1454",
+								"exec": [
+									"pm.environment.set(\"firstName\", \"Василий\");",
+									"pm.environment.set(\"lastName\", \"Али-Баба́\");",
+									"pm.environment.set(\"middleName\", \"Алибабаевич́\");",
+									"pm.environment.set(\"email\", \"alibaba@mail.ru\");",
+									"pm.environment.set(\"mobile\", \"71234567890\");",
+									"pm.environment.set(\"password\", \"123456lol\");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "33ae5ae6-7689-4a11-aace-610e207ebcc7",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody)",
+									"",
+									"pm.test(\"Success response is correct\", function () {",
+									"    pm.expect(pm.response).to.have.property('code', 200);",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');",
+									"    pm.expect(pm.response).to.have.header('Content-type', 'application/json; charset=UTF-8');",
+									"});",
+									"",
+									"pm.test('Base schema is valid', function() {",
+									"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    ",
+									"    pm.test('Entity schema is valid', function() {",
+									"      pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"userSchema\"))).to.be.true;",
+									"    });",
+									"    ",
+									"    pm.test('Message data is valid', function() {",
+									"      pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+									"    });",
+									"    ",
+									"    pm.test(\"Entity data is correct\", function () {",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"firstName\", pm.environment.get(\"firstName\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"lastName\", pm.environment.get(\"lastName\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"middleName\", pm.environment.get(\"middleName\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"email\", pm.environment.get(\"email\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"mobile\", pm.environment.get(\"mobile\"));",
+									"    });",
+									"    ",
+									"    pm.environment.set(\"userID\", jsonData.data[0].ID);",
+									"",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"{{firstName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"middleName\": \"{{middleName}}\",\n\t\"email\": \"{{email}}\",\n    \"mobile\": \"{{mobile}}\",\n    \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{profileHost}}/users",
+							"host": [
+								"{{profileHost}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"email\": \"<email>\",\n    \"mobile\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": \"schema type not provided\"\n}"
+						},
+						{
+							"name": "Invalid Method",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"email\": \"<email>\",\n    \"mobile\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "Method Not Allowed",
+							"code": 405,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						},
+						{
+							"name": "Коллекция перс. данных пользователя",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"email\": \"<email>\",\n    \"mobile\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ],\n \"data\": [\n  {\n   \"ID\": \"<string>\",\n   \"firstName\": \"<string>\",\n   \"lastName\": \"<string>\",\n   \"middleName\": \"<string>\",\n   \"email\": \"<email>\",\n   \"mobile\": \"<string>\"\n  },\n  {\n   \"ID\": \"<string>\",\n   \"firstName\": \"<string>\",\n   \"lastName\": \"<string>\",\n   \"middleName\": \"<string>\",\n   \"email\": \"<email>\",\n   \"mobile\": \"<string>\"\n  }\n ]\n}"
+						},
+						{
+							"name": "Validation error",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"email\": \"<email>\",\n    \"mobile\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Коллекция пользователей 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1b31fbb0-1385-4523-8704-c1ef0ca65c93",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody)",
+									"",
+									"pm.test(\"Success response is correct\", function () {",
+									"    pm.expect(pm.response).to.have.property('code', 200);",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');",
+									"    pm.expect(pm.response).to.have.header('Content-type', 'application/json; charset=UTF-8');",
+									"});",
+									"",
+									"pm.test('Base schema is valid', function() {",
+									"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+									"});",
+									"",
+									"if (jsonData.data !== null && jsonData.data.length > 0) {",
+									"",
+									"    pm.test('Entity schema is valid', function() {",
+									"      pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"userSchema\"))).to.be.true;",
+									"    });",
+									"    ",
+									"    pm.test('Message data is valid', function() {",
+									"      pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+									"    });",
+									"    ",
+									"    pm.test(\"Entity data is correct\", function () {",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"firstName\", pm.environment.get(\"firstName\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"lastName\", pm.environment.get(\"lastName\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"middleName\", pm.environment.get(\"middleName\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"email\", pm.environment.get(\"email\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"mobile\", pm.environment.get(\"mobile\"));",
+									"    });",
+									"",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{profileHost}}/users",
+							"host": [
+								"{{profileHost}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": \"schema type not provided\"\n}"
+						},
+						{
+							"name": "Коллекция перс. данных пользователя",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ],\n \"data\": [\n  {\n   \"ID\": \"<string>\",\n   \"firstName\": \"<string>\",\n   \"lastName\": \"<string>\",\n   \"middleName\": \"<string>\",\n   \"email\": \"<email>\",\n   \"mobile\": \"<string>\"\n  },\n  {\n   \"ID\": \"<string>\",\n   \"firstName\": \"<string>\",\n   \"lastName\": \"<string>\",\n   \"middleName\": \"<string>\",\n   \"email\": \"<email>\",\n   \"mobile\": \"<string>\"\n  }\n ]\n}"
+						},
+						{
+							"name": "Invalid Method",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users"
+									]
+								}
+							},
+							"status": "Method Not Allowed",
+							"code": 405,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Изменение данных пользователя 200",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "fd0dd783-45a0-47d8-98d1-8f6b9c59c8dc",
+								"exec": [
+									"pm.environment.set(\"firstName\", \"Гаврила\");",
+									"pm.environment.set(\"lastName\", \"Шереметьев́\");",
+									"pm.environment.set(\"middleName\", \"Петрович\");",
+									"pm.environment.set(\"email\", \"sheremetyev@mail.ru\");",
+									"pm.environment.set(\"mobile\", \"70123456789\");",
+									"pm.environment.set(\"password\", \"lol123456\");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "3c220b6f-a7be-48f1-99c6-f972158f6bdd",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody)",
+									"",
+									"pm.test(\"Success response is correct\", function () {",
+									"    pm.expect(pm.response).to.have.property('code', 200);",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');",
+									"    pm.expect(pm.response).to.have.header('Content-type', 'application/json; charset=UTF-8');",
+									"});",
+									"",
+									"pm.test('Base schema is valid', function() {",
+									"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    ",
+									"    pm.test('Entity schema is valid', function() {",
+									"      pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"userSchema\"))).to.be.true;",
+									"    });",
+									"    ",
+									"    pm.test('Message data is valid', function() {",
+									"      pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+									"    });",
+									"    ",
+									"    pm.test(\"Entity data is correct\", function () {",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"firstName\", pm.environment.get(\"firstName\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"lastName\", pm.environment.get(\"lastName\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"middleName\", pm.environment.get(\"middleName\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"email\", pm.environment.get(\"email\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"mobile\", pm.environment.get(\"mobile\"));",
+									"        ",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"{{firstName}}\",\n    \"lastName\": \"{{lastName}}\",\n    \"middleName\": \"{{middleName}}\",\n\t\"email\": \"{{email}}\",\n    \"mobile\": \"{{mobile}}\",\n    \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{profileHost}}/users/{{userID}}",
+							"host": [
+								"{{profileHost}}"
+							],
+							"path": [
+								"users",
+								"{{userID}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Invalid Method",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"email\": \"<email>\",\n    \"mobile\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>"
+									]
+								}
+							},
+							"status": "Method Not Allowed",
+							"code": 405,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						},
+						{
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"email\": \"<email>\",\n    \"mobile\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": \"schema type not provided\"\n}"
+						},
+						{
+							"name": "Коллекция перс. данных пользователя",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"email\": \"<email>\",\n    \"mobile\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ],\n \"data\": [\n  {\n   \"ID\": \"<string>\",\n   \"firstName\": \"<string>\",\n   \"lastName\": \"<string>\",\n   \"middleName\": \"<string>\",\n   \"email\": \"<email>\",\n   \"mobile\": \"<string>\"\n  },\n  {\n   \"ID\": \"<string>\",\n   \"firstName\": \"<string>\",\n   \"lastName\": \"<string>\",\n   \"middleName\": \"<string>\",\n   \"email\": \"<email>\",\n   \"mobile\": \"<string>\"\n  }\n ]\n}"
+						},
+						{
+							"name": "Validation error",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"email\": \"<email>\",\n    \"mobile\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						},
+						{
+							"name": "Not found",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"<string>\",\n    \"lastName\": \"<string>\",\n    \"middleName\": \"<string>\",\n    \"email\": \"<email>\",\n    \"mobile\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Изменение настроек пользователя 200",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "4914582c-cc14-4559-acda-689e5f12777b",
+								"exec": [
+									"pm.environment.set(\"locale\", \"ru\");",
+									"pm.environment.set(\"channelType\", \"EMAIL\");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "90704f27-648d-4b12-9762-bbf8e70ae5a6",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody)",
+									"",
+									"pm.test(\"Success response is correct\", function () {",
+									"    pm.expect(pm.response).to.have.property('code', 200);",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');",
+									"    pm.expect(pm.response).to.have.header('Content-type', 'application/json; charset=UTF-8');",
+									"});",
+									"",
+									"pm.test('Base schema is valid', function() {",
+									"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    ",
+									"    pm.test('Entity schema is valid', function() {",
+									"      pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"userSettingsSchema\"))).to.be.true;",
+									"    });",
+									"    ",
+									"    pm.test('Message data is valid', function() {",
+									"      pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+									"    });",
+									"    ",
+									"    pm.test(\"Entity data is correct\", function () {",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"locale\", pm.environment.get(\"locale\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"2FAChannelType\", pm.environment.get(\"channelType\"));",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"locale\": \"{{locale}}\",\n    \"2FAChannelType\": \"{{channelType}}\"\n}"
+						},
+						"url": {
+							"raw": "{{profileHost}}/users/{{userID}}/settings",
+							"host": [
+								"{{profileHost}}"
+							],
+							"path": [
+								"users",
+								"{{userID}}",
+								"settings"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Коллекция настроек пользователя",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"locale\": \"<string>\",\n    \"2FAChannelType\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>",
+										"settings"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ],\n \"data\": [\n  {\n   \"locale\": \"<string>\",\n   \"2FAChannelType\": \"<string>\"\n  },\n  {\n   \"locale\": \"<string>\",\n   \"2FAChannelType\": \"<string>\"\n  }\n ]\n}"
+						},
+						{
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"locale\": \"<string>\",\n    \"2FAChannelType\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>",
+										"settings"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": \"schema type not provided\"\n}"
+						},
+						{
+							"name": "Invalid Method",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"locale\": \"<string>\",\n    \"2FAChannelType\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>",
+										"settings"
+									]
+								}
+							},
+							"status": "Method Not Allowed",
+							"code": 405,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						},
+						{
+							"name": "Validation error",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"locale\": \"<string>\",\n    \"2FAChannelType\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>",
+										"settings"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						},
+						{
+							"name": "Not found",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"locale\": \"<string>\",\n    \"2FAChannelType\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>",
+										"settings"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Коллекция настроек пользователя 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "35191637-c822-474b-9a4b-2f6238887006",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody)",
+									"",
+									"pm.test(\"Success response is correct\", function () {",
+									"    pm.expect(pm.response).to.have.property('code', 200);",
+									"    pm.expect(pm.response).to.have.property('status', 'OK');",
+									"    pm.expect(pm.response).to.have.header('Content-type', 'application/json; charset=UTF-8');",
+									"});",
+									"",
+									"pm.test('Base schema is valid', function() {",
+									"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    ",
+									"    pm.test('Entity schema is valid', function() {",
+									"      pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"userSettingsSchema\"))).to.be.true;",
+									"    });",
+									"    ",
+									"    pm.test('Message data is valid', function() {",
+									"      pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+									"    });",
+									"    ",
+									"    pm.test(\"Entity data is correct\", function () {",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"locale\", pm.environment.get(\"locale\"));",
+									"        pm.expect(jsonData.data[0]).to.have.property(\"2FAChannelType\", pm.environment.get(\"channelType\"));",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{profileHost}}/users/{{userID}}/settings",
+							"host": [
+								"{{profileHost}}"
+							],
+							"path": [
+								"users",
+								"{{userID}}",
+								"settings"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>",
+										"settings"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": \"schema type not provided\"\n}"
+						},
+						{
+							"name": "Not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>",
+										"settings"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						},
+						{
+							"name": "Коллекция настроек пользователя",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>",
+										"settings"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ],\n \"data\": [\n  {\n   \"locale\": \"<string>\",\n   \"2FAChannelType\": \"<string>\"\n  },\n  {\n   \"locale\": \"<string>\",\n   \"2FAChannelType\": \"<string>\"\n  }\n ]\n}"
+						},
+						{
+							"name": "Invalid Method",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/users/<string>/settings",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"users",
+										"<string>",
+										"settings"
+									]
+								}
+							},
+							"status": "Method Not Allowed",
+							"code": 405,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+						}
+					]
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Аутентификация пользователя 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6e831fbb-66d0-4e91-8d31-daf766078914",
+						"exec": [
+							"pm.environment.set(\"login\", pm.environment.get(\"email\"));",
+							"pm.environment.set(\"password\", pm.environment.get(\"password\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "90703dc3-384d-4474-9bb3-075b8dcd5ffc",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    pm.expect(pm.response).to.have.header('Content-type', 'application/json; charset=UTF-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"if (pm.response.code === 200) {",
+							"    pm.test('Message data is valid', function() {",
+							"      pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+							"    });",
+							"    ",
+							"    pm.test(\"Entity data is correct\", function () {",
+							"        pm.expect(jsonData.data[0]).to.have.property(\"userID\", pm.environment.get(\"userID\"));",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"login\": \"{{login}}\",\n    \"password\": \"{{password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{profileHost}}/authorize",
+					"host": [
+						"{{profileHost}}"
+					],
+					"path": [
+						"authorize"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Результат аутентификации",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"login\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authorize",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authorize"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"version\": \"<string>\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ],\n \"data\": [\n  {\n   \"userID\": \"<string>\"\n  },\n  {\n   \"userID\": \"<string>\"\n  }\n ]\n}"
+				},
+				{
+					"name": "Internal server error",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"login\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authorize",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authorize"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": \"schema type not provided\"\n}"
+				},
+				{
+					"name": "Invalid Method",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"login\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authorize",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authorize"
+							]
+						}
+					},
+					"status": "Method Not Allowed",
+					"code": 405,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+				},
+				{
+					"name": "Access denied",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"login\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authorize",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authorize"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+				},
+				{
+					"name": "Validation error",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"login\": \"<string>\",\n    \"password\": \"<string>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/authorize",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"authorize"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"version\": \"<string>\",\n \"data\": \"schema type not provided\",\n \"message\": \"<string>\",\n \"errors\": [\n  \"schema type not provided\",\n  \"schema type not provided\"\n ]\n}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "b86aa8c5-7033-4548-9ea6-9665447cac05",
+				"type": "text/javascript",
+				"exec": [
+					"var uuid = require('uuid');",
+					"pm.environment.set('randomID', uuid.v4());",
+					"",
+					"glFn = {",
+					"    getEnvSchema: function(name) {",
+					"        return JSON.parse(pm.variables.get(name));",
+					"}",
+					"}",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "88503caa-99a1-4ae1-8878-6dca788b3074",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "ccd6d6bb-9e09-4d90-8573-9799daf72499",
+			"key": "baseSchema",
+			"value": "{\"type\":\"object\",\"properties\":{\"version\":{\"type\":\"string\"},\"errors\":{\"type\":[\"object\",\"array\",\"null\"]},\"data\":{\"type\":[\"array\",\"null\"]}},\"required\":[\"version\",\"errors\",\"data\"]}",
+			"type": "string"
+		},
+		{
+			"id": "5909d487-825e-4789-829e-4c5ac5f293d5",
+			"key": "userSchema",
+			"value": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"ID\": {\n      \"type\": \"string\"\n    },\n    \"firstName\": {\n      \"type\": \"string\"\n    },\n    \"lastName\": {\n      \"type\": \"string\"\n    },\n    \"middleName\": {\n      \"type\": [\n        \"string\",\n        \"null\"\n      ]\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"mobile\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"ID\",\n    \"firstName\",\n    \"lastName\",\n    \"middleName\",\n    \"email\",\n    \"mobile\"\n  ]\n}",
+			"type": "string"
+		},
+		{
+			"id": "888f7319-42ed-46e9-81af-2cff1d482a32",
+			"key": "userSettingsSchema",
+			"value": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"locale\": {\n      \"type\": \"string\"\n    },\n    \"2FAChannelType\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"locale\",\n    \"2FAChannelType\"\n  ]\n}",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

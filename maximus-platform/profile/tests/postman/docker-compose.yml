@@ -1,0 +1,70 @@
+version: '3.7'
+networks:
+ profile:
+
+services:
+ app:
+  image: "${CI_REGISTRY_IMAGE}:${CI_PIPELINE_ID}"
+  container_name: "profile_app-${CI_JOB_ID}"
+  labels:
+   log.label: "profile_app"
+  environment:
+   - PROFILE_HTTP_HOST=0.0.0.0
+   - PROFILE_HTTP_PORT=80
+   - PROFILE_DB_HOST=config_db
+   - PROFILE_DB_PORT=27017
+   - PROFILE_DB_DATABASE=profile
+   - PROFILE_LOGGING_FORMAT=JSON
+   - PROFILE_LOGGING_OUTPUT=STDOUT
+   - PROFILE_LOGGING_LEVEL=DEBUG
+   - PROFILE_SENTRYDSN=https://0c61099b61fe45bab898aa281fd3e5a1@sentry.diacare-soft.ru/29
+  networks:
+   - profile
+  ports:
+   - 80
+  depends_on:
+   - config_db
+
+ config_db:
+   image: mongo
+   container_name: "profile_config_db-${CI_JOB_ID}"
+   environment:
+     - MONGO_DATA_DIR=/data/db
+     - MONGO_LOG_DIR=/dev/null
+   networks:
+     - profile
+   ports:
+     - 27017
+
+ filebeat:
+   container_name: "filebeat-${CI_JOB_ID}"
+   user: root
+   build:
+    context: .
+    dockerfile: Dockerfile.filebeat
+    labels:
+     - "image.version=${CI_JOB_ID}"
+   environment:
+    PIPELINE_ID: "${CI_PIPELINE_ID}"
+    JOB_ID: "${CI_JOB_ID}"
+   networks:
+    - profile
+   volumes:
+    - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+
+ postman:
+  image: newman
+  container_name: "postman-${CI_JOB_ID}"
+  build:
+   context: .
+   labels:
+    - "image.version=${CI_JOB_ID}"
+  networks:
+   - profile
+  depends_on:
+   - app
+   - index_app
+  volumes:
+   - /storage/report:/storage/report:z
+  command: run /storage/collection.json -r cli,htmlextra --reporter-htmlextra-export /storage/report/${CI_PROJECT_NAME}-${CI_JOB_ID}.html --color on --global-var profileHost=http://app --global-var indexHost=http://index_app

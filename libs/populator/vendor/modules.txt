@@ -1,0 +1,14 @@
+# github.com/Pallinder/go-randomdata v1.2.0
+github.com/Pallinder/go-randomdata
+# github.com/fatih/astrewrite v0.0.0-20191207154002-9094e544fcef
+github.com/fatih/astrewrite
+# github.com/google/uuid v1.1.1
+github.com/google/uuid
+# github.com/lfittl/pg_query_go v1.0.0
+github.com/lfittl/pg_query_go
+github.com/lfittl/pg_query_go/nodes
+github.com/lfittl/pg_query_go/parser
+# github.com/lib/pq v1.3.0
+github.com/lib/pq
+github.com/lib/pq/oid
+github.com/lib/pq/scram

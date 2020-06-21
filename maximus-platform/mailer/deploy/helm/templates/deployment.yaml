@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mailer.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "mailer.fullname" . }}
+    app.kubernetes.io/version: "{{ include "mailer.version" . }}"
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "maximus"
+    helm.sh/chart: {{ include "mailer.name" . }}-{{ include "mailer.release" . }}
+spec:
+  replicas: {{ .Values.replicaCount | default .Values.defaults.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "mailer.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "mailer.fullname" . }}
+    spec:
+      imagePullSecrets:
+      - name: {{ .Values.imagecredentials.registry | quote }}
+      containers:
+        - name: {{ include "mailer.fullname" . }}
+          image: {{ printf "%s:%s" .Values.image.repository .Chart.AppVersion | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: {{ include "mailer.name" . }}
+              containerPort: {{ .Values.MAILER_HTTP_PORT | default .Values.defaults.env.MAILER_HTTP_PORT }}
+              protocol: TCP
+            - name: {{ include "mailer.name" . }}-metrics
+              containerPort: {{ .Values.MAILER_PROMETHEUS_PORT | default .Values.defaults.env.MAILER_PROMETHEUS_PORT }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: mailer
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: mailer
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          env:
+            - name: HTTP_PROXY
+              value: {{ .Values.HTTP_PROXY | default .Values.defaults.env.HTTP_PROXY | quote }}
+            - name: MAILER_EVENTDB_HOST
+              value: {{ .Values.MAILER_EVENTDB_HOST | default .Values.defaults.env.MAILER_EVENTDB_HOST | quote }}
+            - name: MAILER_EVENTDB_PORT
+              value: {{ .Values.MAILER_EVENTDB_PORT | default .Values.defaults.env.MAILER_EVENTDB_PORT | quote }}
+            - name: MAILER_EVENTDB_RETENTION
+              value: {{ .Values.MAILER_EVENTDB_RETENTION | default .Values.defaults.env.MAILER_EVENTDB_RETENTION | quote }}
+            - name: MAILER_EVENTDB_DATABASE
+              value: {{ include "mailer.fullname" . }}
+            - name: MAILER_EVENTDB_LOGIN
+              value: {{ include "mailer.fullname" . }}
+            - name: MAILER_EVENTDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mailer.fullname" . }}
+                  key: MAILER_EVENTDB_PASSWORD
+            - name: MAILER_CONFIGDB_HOST
+              value: {{ .Values.MAILER_CONFIGDB_HOST | default .Values.defaults.env.MAILER_CONFIGDB_HOST | quote }}
+            - name: MAILER_CONFIGDB_PORT
+              value: {{ .Values.MAILER_CONFIGDB_PORT | default .Values.defaults.env.MAILER_CONFIGDB_PORT | quote }}
+            - name: MAILER_CONFIGDB_DATABASE
+              value: {{ include "mailer.fullname" . }}
+            - name: MAILER_CONFIGDB_LOGIN
+              value: {{ include "mailer.fullname" . }}
+            - name: MAILER_CONFIGDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mailer.fullname" . }}
+                  key: MAILER_CONFIGDB_PASSWORD
+            - name: MAILER_MASTERTOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mailer.fullname" . }}
+                  key: MAILER_MASTERTOKEN
+            - name: MAILER_SENTRY_DSN
+              value: {{ .Values.MAILER_SENTRY_DSN | default .Values.defaults.env.MAILER_SENTRY_DSN | quote }}
+            - name: MAILER_BOTPROXY_HTTP_HOST
+              value: {{ .Values.MAILER_BOTPROXY_HTTP_HOST | default .Values.defaults.env.MAILER_BOTPROXY_HTTP_HOST | quote }}
+            - name: MAILER_BOTPROXY_MQ_HOST
+              value: {{ .Values.MAILER_BOTPROXY_MQ_HOST | default .Values.defaults.env.MAILER_BOTPROXY_MQ_HOST | quote }}
+            - name: MAILER_BOTPROXY_MQ_PORT
+              value: {{ .Values.MAILER_BOTPROXY_MQ_PORT | default .Values.defaults.env.MAILER_BOTPROXY_MQ_PORT | quote }}
+            - name: MAILER_HTTP_PORT
+              value: {{ .Values.MAILER_HTTP_PORT | default .Values.defaults.env.MAILER_HTTP_PORT | quote }}
+            - name: MAILER_HTTP_HOST
+              value: {{ .Values.MAILER_HTTP_HOST | default .Values.defaults.env.MAILER_HTTP_HOST | quote }}
+            - name: MAILER_PROMETHEUS_PORT
+              value: {{ .Values.MAILER_PROMETHEUS_PORT | default .Values.defaults.env.MAILER_PROMETHEUS_PORT | quote }}
+            - name: MAILER_LOGGING_LEVEL
+              value: {{ .Values.MAILER_LOGGING_LEVEL | default .Values.defaults.env.MAILER_LOGGING_LEVEL | quote }}
+            - name: MAILER_LOGGING_FORMAT
+              value: {{ .Values.MAILER_LOGGING_FORMAT | default .Values.defaults.env.MAILER_LOGGING_FORMAT | quote }}

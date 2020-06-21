@@ -1,0 +1,105 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongo-create-db-{{ include "mailer.fullname" . }}
+  namespace: databases
+  labels:
+    app.kubernetes.io/name: mongo-create-db-{{ include "mailer.fullname" . }}
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "maximus"
+    helm.sh/chart: {{ include "mailer.name" . }}-{{ include "mailer.release" . }}
+    helm.sh/hook: "pre-install"
+    release: 4.1.4
+spec:
+  template:
+    spec:
+      containers:
+      - name: mongo-create-db-{{ include "mailer.fullname" . }}
+        image: mongo:4.1.4
+        command:
+        - /bin/entrypoint.sh
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb
+              key: MONGO_INITDB_ROOT_USERNAME
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb
+              key: MONGO_INITDB_ROOT_PASSWORD
+        - name: MONGODB_DATABASE
+          value: {{ include "mailer.fullname" . }}
+        - name: MONGODB_USER
+          value: {{ include "mailer.fullname" . }}
+        - name: MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mailer.fullname" . }}
+              key: MAILER_CONFIGDB_PASSWORD
+        volumeMounts:
+        - name: script
+          mountPath: /bin/entrypoint.sh
+          readOnly: true
+          subPath: entrypoint.sh
+      volumes:
+      - name: script
+        configMap:
+          defaultMode: 0700
+          name: mongodb-create-database-script
+      restartPolicy: Never
+  backoffLimit: 4
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: influx-create-db-{{ include "mailer.fullname" . }}
+  namespace: databases
+  labels:
+    app.kubernetes.io/name: influx-create-db-{{ include "mailer.fullname" . }}
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "maximus"
+    helm.sh/chart: {{ include "mailer.name" . }}-{{ include "mailer.release" . }}
+    release: 1.6.4
+    "helm.sh/hook": "pre-install"
+spec:
+  template:
+    spec:
+      containers:
+      - name: influx-create-db-{{ include "mailer.fullname" . }}
+        image: influxdb:1.6.4
+        command:
+        - /bin/entrypoint.sh
+        env:
+        - name: INFLUXDB_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: influxdb
+              key: INFLUXDB_ADMIN_USER
+        - name: INFLUXDB_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: influxdb
+              key: INFLUXDB_ADMIN_PASSWORD
+        - name: INFLUXDB_DATABASE
+          value: {{ include "mailer.fullname" . }}
+        - name: INFLUXDB_USER
+          value: {{ include "mailer.fullname" . }}
+        - name: INFLUXDB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "mailer.fullname" . }}
+              key: MAILER_EVENTDB_PASSWORD
+        volumeMounts:
+        - name: script
+          mountPath: /bin/entrypoint.sh
+          readOnly: true
+          subPath: entrypoint.sh
+      volumes:
+      - name: script
+        configMap:
+          defaultMode: 0700
+          name: influxdb-create-database-script
+      restartPolicy: Never
+  backoffLimit: 4

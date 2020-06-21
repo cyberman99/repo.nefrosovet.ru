@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "packages": [
+    {
+      "name": "sqlc",
+      "emit_json_tags": true,
+      "emit_prepared_queries": true,
+      "path": "db/sqlc",
+      "queries": "./db/queries/",
+      "schema": "./db/migrations/"
+    }
+  ]
+}

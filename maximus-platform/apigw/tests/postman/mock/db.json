@@ -1,0 +1,36 @@
+{
+    "patients": [{
+	"id": 1,
+	"firstName": "Иван",
+	"lastName": "Иванов",
+	"patronymic": "Иванович",
+	"gender": "MALE",
+	"age": 61,
+	"statusCode": "ON_PROCEDURE"
+    }, {
+	"id": 2,
+	"firstName": "Петров",
+	"lastName": "Петр",
+	"patronymic": "Петрович",
+	"gender": "MALE",
+	"age": 35,
+	"statusCode": "ON_PROCEDURE"
+    }, {
+	"id": 3,
+	"firstName": "Сидоров",
+	"lastName": "Сидор",
+	"patronymic": "Сидорович",
+	"gender": "MALE",
+	"age": 35,
+	"statusCode": "ON_PROCEDURE"
+    }, {
+	"id": 4,
+	"firstName": "Константинопольская",
+	"lastName": "Елизавета",
+	"patronymic": "Валериановна",
+	"gender": "FEMALE",
+	"age": 67,
+	"statusCode": "ON_PROCEDURE"
+
+    }]
+}

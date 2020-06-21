@@ -1,0 +1,344 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+ name: mailer-develop
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: glusterfs-cluster
+  namespace: mailer-develop
+spec:
+  ports:
+  - port: 1
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: glusterfs-cluster
+  namespace: mailer-develop
+subsets:
+  - addresses:
+      - ip: 10.0.17.48
+    ports:
+      - port: 1
+  - addresses:
+      - ip: 10.0.17.49
+    ports:
+      - port: 1
+  - addresses:
+      - ip: 10.0.17.50
+    ports:
+      - port: 1
+---
+apiVersion: v1
+kind: Secret
+metadata:
+ name: registry
+ namespace: mailer-develop
+data:
+  .dockerconfigjson: eyJyZWdpc3RyeS5uZWZyb3NvdmV0LnJ1Ijp7InVzZXJuYW1lIjoiZG9ja2VyLWltcG9ydGVyIiwicGFzc3dvcmQiOiI4RFduUW11Umh0IiwiYXV0aCI6IlpHOWphMlZ5TFdsdGNHOXlkR1Z5T2poRVYyNVJiWFZTYUhRPSJ9fQ==
+type: kubernetes.io/dockerconfigjson
+---
+apiVersion: v1
+kind: Secret
+metadata:
+ name: mongo-db-sec-mailer-develop
+ namespace: databases
+data:
+ MONGODB_DATABASE: bWFpbGVyLWRldmVsb3A=
+ MONGODB_USER: bWFpbGVyLWRldmVsb3A=
+ MONGODB_PASSWORD: YTg2TEdneUNHV0RRRnFKNFZzNGVKTGNz
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+ name: mongo-db-sec
+ namespace: mailer-develop
+data:
+ MONGODB_DATABASE: bWFpbGVyLWRldmVsb3A=
+ MONGODB_USER: bWFpbGVyLWRldmVsb3A=
+ MONGODB_PASSWORD: YTg2TEdneUNHV0RRRnFKNFZzNGVKTGNz
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+ name: influx-db-sec-mailer-develop
+ namespace: databases
+data:
+ INFLUXDB_DATABASE: bWFpbGVyLWRldmVsb3A=
+ INFLUXDB_USER: bWFpbGVyLWRldmVsb3A=
+ INFLUXDB_PASSWORD: ZGhwQUhJMGU4YUdWb2hvaU9FbmpaY3lS
+type: Opaque
+---
+apiVersion: v1
+kind: Secret
+metadata:
+ name: influx-db-sec
+ namespace: mailer-develop
+data:
+ INFLUXDB_DATABASE: bWFpbGVyLWRldmVsb3A=
+ INFLUXDB_USER: bWFpbGVyLWRldmVsb3A=
+ INFLUXDB_PASSWORD: ZGhwQUhJMGU4YUdWb2hvaU9FbmpaY3lS
+type: Opaque
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongo-db-mailer-develop
+  namespace: databases
+  labels:
+    job: mongo-db-mailer-develop
+    release: 4.1.4
+spec:
+  template:
+    spec:
+      containers:
+      - name: mongo-db-mailer-develop
+        image: mongo:4.1.4
+        command:
+        - /bin/entrypoint.sh
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb
+              key: MONGO_INITDB_ROOT_USERNAME
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb
+              key: MONGO_INITDB_ROOT_PASSWORD
+        - name: MONGODB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mongo-db-sec-mailer-develop
+              key: MONGODB_DATABASE
+        - name: MONGODB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mongo-db-sec-mailer-develop
+              key: MONGODB_USER
+        - name: MONGODB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-db-sec-mailer-develop
+              key: MONGODB_PASSWORD
+        volumeMounts:
+        - name: script
+          mountPath: /bin/entrypoint.sh
+          readOnly: true
+          subPath: entrypoint.sh
+      volumes:
+      - name: script
+        configMap:
+          defaultMode: 0700
+          name: mongodb-create-database-script
+      restartPolicy: Never
+  backoffLimit: 4
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: influxdb-db-mailer-develop
+  namespace: databases
+  labels:
+    job: influxdb-db-mailer-develop
+    release: 1.6.4
+spec:
+  template:
+    spec:
+      containers:
+      - name: influxdb-db-mailer-develop
+        image: influxdb:1.6.4
+        command:
+        - /bin/entrypoint.sh
+        env:
+        - name: INFLUXDB_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: influxdb
+              key: INFLUXDB_ADMIN_USER
+        - name: INFLUXDB_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: influxdb
+              key: INFLUXDB_ADMIN_PASSWORD
+        - name: INFLUXDB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: influx-db-sec-mailer-develop
+              key: INFLUXDB_DATABASE
+        - name: INFLUXDB_USER
+          valueFrom:
+            secretKeyRef:
+              name: influx-db-sec-mailer-develop
+              key: INFLUXDB_USER
+        - name: INFLUXDB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: influx-db-sec-mailer-develop
+              key: INFLUXDB_PASSWORD
+        volumeMounts:
+        - name: script
+          mountPath: /bin/entrypoint.sh
+          readOnly: true
+          subPath: entrypoint.sh
+      volumes:
+      - name: script
+        configMap:
+          defaultMode: 0700
+          name: influxdb-create-database-script
+      restartPolicy: Never
+  backoffLimit: 4
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: mailer
+  namespace: mailer-develop
+  annotations:
+    prometheus.io/scrape: "false"
+  labels:
+    app.kubernetes.io/name: mailer
+    release: develop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mailer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mailer
+    spec:
+      imagePullSecrets:
+        - name: registry
+      containers:
+        - name: mailer
+          image: registry.nefrosovet.ru/maximus-platform/mailer:develop
+          imagePullPolicy: Always
+          env:
+            - name: MAILER_EVENTDB_HOST
+              value: "influxdb.databases"
+            - name: MAILER_EVENTDB_PORT
+              value: "8086"
+            - name: MAILER_EVENTDB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: influx-db-sec
+                  key: INFLUXDB_DATABASE
+            - name: MAILER_EVENTDB_LOGIN
+              valueFrom:
+                secretKeyRef:
+                  name: influx-db-sec
+                  key: INFLUXDB_USER
+            - name: MAILER_EVENTDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: influx-db-sec
+                  key: INFLUXDB_PASSWORD
+            - name: MAILER_EVENTDB_RETENTION
+              value: "24h"
+            - name: MAILER_CONFIGDB_HOST
+              value: "mongodb.databases"
+            - name: MAILER_CONFIGDB_PORT
+              value: "27017"
+            - name: MAILER_CONFIGDB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-db-sec
+                  key: MONGODB_DATABASE
+            - name: MAILER_CONFIGDB_LOGIN
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-db-sec
+                  key: MONGODB_USER
+            - name: MAILER_CONFIGDB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-db-sec
+                  key: MONGODB_PASSWORD
+            - name: MAILER_SENTRY_DSN
+              value: "https://4a92babd5d474ec9ae7aa276970128c4:eb855ebd4bef4bba9089e9c79a1bea75@sentry.nefrosovet.ru/28"
+            - name: MAILER_MASTERTOKEN
+              value: "a9c28b2d-d962-441f-8928-e042d0af06c9"
+            - name: MAILER_BOTPROXY_HTTP_HOST
+              value: "botproxy.diacare-soft.ru"
+            - name: MAILER_BOTPROXY_MQ_HOST
+              value: "botproxy.diacare-soft.ru"
+            - name: MAILER_BOTPROXY_MQ_PORT
+              value: "8883"
+            - name: MAILER_HTTP_PORT
+              value: "80"
+            - name: MAILER_HTTP_HOST
+              value: "0.0.0.0"
+            - name: MAILER_PROMETHEUS_PORT
+              value: "9090"
+            - name: MAILER_LOGGING_LEVEL
+              value: "INFO"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailer
+  labels:
+    name: mailer
+  namespace: mailer-develop
+  annotations:
+    prometheus.io/scrape: "false"
+spec:
+  ports:
+  - name: http
+    port: 80
+  selector:
+    name: mailer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailer-metrics
+  labels:
+    name: mailer
+  namespace: mailer-develop
+  annotations:
+    prometheus.io/scrape: "true"
+spec:
+  ports:
+  - name: metrics
+    port: 9090
+  selector:
+    name: mailer
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+ name: mailer
+ namespace: mailer-develop
+ annotations:
+   prometheus.io/scrape: "false"
+   ingress.kubernetes.io/rewrite-target: /
+   kubernetes.io/ingress.class: nginx
+spec:
+ rules:
+ - host: "test.maximus.lan"
+   http:
+     paths:
+     - path: /mailer/develop
+       backend:
+         serviceName: mailer
+         servicePort: 80
+     - path: /mailer/develop/metrics
+       backend:
+         serviceName: mailer-metrics
+         servicePort: 9090

@@ -1,0 +1,399 @@
+swagger: '2.0'
+info:
+  version: "1.0.0"
+  title: Recognition API
+  description: |
+    #### RESTFUL RECOGNITION API
+schemes:
+  - http
+host: "recognition.maximus.lan"
+basePath: /
+
+parameters:
+  personID:
+    name: personID
+    in: path
+    description: "Идентификатор пациента"
+    type: string
+    format: uuid
+    required: true
+
+  photoID:
+    name: photoID
+    in: path
+    description: "Идентификатор фотографии"
+    type: string
+    format: uuid
+    minLength: 1
+    required: true
+
+  limit:
+    name: limit
+    in: query
+    description: "Лимит"
+    type: integer
+    minimum: 1
+    required: false
+
+  offset:
+    name: offset
+    in: query
+    description: "Шаг"
+    type: integer
+    required: false
+
+paths:
+  /photos:
+    get:
+      operationId: Collection
+      tags:
+        - Photo
+      summary: Коллекция фотографий
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - $ref: "#/parameters/offset"
+        - $ref: "#/parameters/limit"
+      responses:
+        200:
+          $ref: "#/responses/Photo_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    post:
+      operationId: Create
+      tags:
+        - Photo
+      summary: Загрузка фотографии
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          in: formData
+          type: file
+          required: true
+          description: The file to upload.
+        - in: formData
+          name: personID
+          type: string
+          required: true
+          description: person GUID
+      responses:
+        200:
+          $ref: "#/responses/Photo_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /photos/{photoID}:
+    parameters:
+      - $ref: "#/parameters/photoID"
+    get:
+      operationId: View
+      tags:
+        - Photo
+      summary: Информация о фотографии
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Photo_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    delete:
+      operationId: Delete
+      tags:
+        - Photo
+      summary: Удаление фотографии
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /recognize:
+    post:
+      operationId: Recognize
+      tags:
+        - Recognize
+      summary: Загрузка фотографии для поиска совпадений
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          required: true
+          in: formData
+          type: file
+          description: The file to upload.
+      responses:
+        200:
+          $ref: "#/responses/Recognize_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+responses:
+  Base_response_400:
+    description: "Ошибка валидации"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_400_data"
+        - type: object
+          properties:
+            message:
+              type: string
+              example: "Authentication failure"
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+                core:
+                  type: string
+                json:
+                  type: string
+          required:
+            - message
+            - errors
+
+  Base_response_404:
+    description: "Not found"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_404_data"
+
+  Base_response_405:
+    description: "Invalid Method"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_405_data"
+
+  Base_response_500:
+    description: "Internal server error"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_500_data"
+
+  Base_response_200:
+    description: "SUCCESS"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items: {}
+          required:
+            - data
+
+  Photo_response_200:
+    description: "Объект фотографии"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Photo_object"
+          required:
+            - data
+
+  Recognize_response_200:
+    description: "Объект фотографии"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Photo_object"
+                  - $ref: "#/definitions/Recognize_object"
+          required:
+            - data
+
+definitions:
+  Base_data:
+    description: Возвращает статус ответа
+    type: object
+    properties:
+      version:
+        type: string
+        description: "Версия ответа сервиса"
+        example: "2.0.0"
+    required:
+      - version
+
+  Success_data:
+    description: Все хорошо
+    allOf:
+      - $ref: "#/definitions/Base_data"
+      - type: object
+        title: Success_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "SUCCESS"
+          errors:
+            type: array
+            items: {}
+            example: null
+        required:
+          - message
+          - errors
+
+  Error_data:
+    description: Все плохо
+    allOf:
+      - $ref: "#/definitions/Base_data"
+      - type: object
+        title: Error_data
+        properties:
+          data:
+            example: null
+        required:
+          - data
+
+  Error_400_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_400_data
+        properties:
+          message:
+            type: string
+            example: "Validation error"
+          errors:
+            type: object
+            properties:
+              validation:
+                type: object
+            required:
+              - validation
+        required:
+          - message
+          - errors
+
+  Error_404_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_404_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "${ITEM} Not found"
+          errors:
+            example: null
+
+  Error_405_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_405_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Method ${METHOD} not allowed"
+          errors:
+            example: null
+
+  Error_500_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_500_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Internal server error"
+          errors:
+            example: null
+
+  Photo_object:
+    title: Person_object
+    properties:
+      ID:
+        type: string
+        description: "Идентификатор фотографии"
+        example: "c4455363-d263-447f-9c56-6f7c39b4771a"
+        format: uuid
+      personID:
+        type: string
+        description: "Идентификатор индивидуума"
+        example: "f2596011-1502-4fe2-bb49-42ff209cc6c2"
+        format: uuid
+        x-omitempty: false
+      extService:
+        type: string
+        description: "Имя внешнего сервиса распознавания"
+        example: "AWS"
+        enum:
+          - AWS
+        x-omitempty: false
+      URL:
+        type: string
+        description: "URL фото на сервисе"
+        example: "https://storage.com/photos/id"
+        x-nullable: true
+        x-omitempty: false
+    required:
+      - ID
+
+  Recognize_object:
+    title: Recognize_object
+    properties:
+      Similarity:
+        type: number
+        description: "Сходство фотографии с образцом"
+        example: 88
+    required:
+      - Similarity

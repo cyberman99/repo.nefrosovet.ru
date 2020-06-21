@@ -1,0 +1,48 @@
+version: '3.7'
+
+services:
+ auth_app:
+  depends_on:
+   - index_app
+  environment:
+   - AUTH_INDEX_HTTP_HOST=index_app
+
+ index_app:
+  image: repository.diacare-soft.ru/docker/platform/index/app:1.0.0
+  container_name: "index_app-${CI_JOB_ID}"
+  networks:
+   - apigw
+  healthcheck:
+    test: ["CMD", "entrypoint.sh", "status"]
+    interval: 10s
+  environment:
+   - INDEX_HTTP_HOST=0.0.0.0
+   - INDEX_HTTP_PORT=80
+   - AUTH_LOGGING_LEVEL=DEBUG
+   - INDEX_DB_HOST=index_db
+   - INDEX_DB_PORT=5984
+   - INDEX_DB_LOGIN=admin
+   - INDEX_DB_PASSWORD=lQnSkyedBG
+   - INDEX_DB_SYSTEMDB=true
+  networks:
+   - apigw
+  ports:
+   - 80
+  depends_on:
+   - index_db
+
+ index_db:
+  image: repository.diacare-soft.ru/docker/couchdb:2.3.0
+  container_name: "index_db-${CI_JOB_ID}"
+  ports:
+   - 5984
+  networks:
+   - apigw
+  healthcheck:
+    test: ["CMD", "curl", "-f", "http://localhost:5984/"]
+    interval: 1s
+    timeout: 3s
+    retries: 60
+  environment:
+   - COUCHDB_USER=admin
+   - COUCHDB_PASSWORD=lQnSkyedBG

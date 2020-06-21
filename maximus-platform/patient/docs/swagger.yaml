@@ -1,0 +1,1108 @@
+swagger: '2.0'
+info:
+  version: "1.0.0"
+  title: Patient WP API
+  description: |
+    #### RESTFUL PATIENT WP API
+schemes:
+  - http
+host: "patient.maximus.lan"
+basePath: /
+
+parameters:
+  userID:
+    name: userID
+    in: path
+    description: "Идентификатор пользователя"
+    type: string
+    format: uuid
+    required: true
+
+  appointmentID:
+    name: appointmentID
+    in: path
+    description: "Идентификатор медицинского назначения"
+    type: string
+    format: uuid
+    required: true
+
+  programID:
+    name: programID
+    in: path
+    description: "Идентификатор программы медицинских назначений"
+    type: string
+    format: uuid
+    required: true
+
+  employeeID:
+    name: employeeID
+    in: path
+    description: "Идентификатор сотрудника клиники"
+    type: string
+    format: uuid
+    required: true
+
+  filter.typeCode:
+    name: typeCode
+    in: query
+    description: "Кодификатор типа"
+    required: false
+    type: array
+    items:
+      type: string
+
+
+  filter.statusCode:
+    name: statusCode
+    in: query
+    description: "Кодификатор статуса"
+    required: false
+    type: array
+    items:
+      type: string
+      enum:
+        - "PERFORMED"
+        - "NOT_PERFORMED"
+        - "HALF_PERFORMED"
+
+  filter.dateFrom:
+    name: dateFrom
+    in: query
+    description: "Дата не ранее чем"
+    type: string
+    format: date
+    required: true
+
+  filter.dateTo:
+    name: dateTo
+    in: query
+    description: "Дата не позднее чем"
+    type: string
+    format: date
+    required: true
+
+  limit:
+    name: limit
+    in: query
+    description: "Лимит"
+    type: integer
+    required: false
+
+  offset:
+    name: offset
+    in: query
+    description: "Шаг"
+    type: integer
+    required: false
+
+paths:
+  /registration:
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            allOf:
+              - $ref: "#/definitions/Registration_object"
+      tags:
+        - Access
+      summary: Регистрация пациента
+      operationId: "PatientRegistration"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        400:
+          $ref: "#/responses/Registration_response_400"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /confirm:
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            allOf:
+              - $ref: "#/definitions/Confirmation_object"
+      tags:
+        - Access
+      summary: Подтверждение кода
+      operationId: "CodeConfirmation"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        400:
+          $ref: "#/responses/Confirm_response_400"
+        401:
+          $ref: "#/responses/Base_response_401"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /recovery:
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            allOf:
+              - $ref: "#/definitions/Registration_object"
+      tags:
+        - Access
+      summary: Восстановление доступа пациента
+      operationId: "PasswordRecovery"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Base_response_200"
+        400:
+          $ref: "#/responses/Registration_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /users/{userID}:
+    parameters:
+      - $ref: "#/parameters/userID"
+    get:
+      tags:
+        - Profile
+      summary: Профиль пациента
+      operationId: "PatientProfileView"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Profile_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    patch:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            allOf:
+              - $ref: "#/definitions/Profile_object"
+      tags:
+        - Profile
+      summary: Редактирование профиля пациента
+      operationId: "PatientProfileUpdate"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Profile_response_200"
+        400:
+          $ref: "#/responses/Profile_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /users/{userID}/contacts:
+    parameters:
+      - $ref: "#/parameters/userID"
+    get:
+      tags:
+        - Profile
+      summary: Коллекция контактных данных пациента
+      operationId: "PatientcontactView"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Contact_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+    patch:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            allOf:
+              - $ref: "#/definitions/Registration_object"
+      tags:
+        - Profile
+      summary: Редактирование контактов пациента
+      operationId: "PatientContactUpdate"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Contact_response_200"
+        400:
+          $ref: "#/responses/Contact_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /users/{userID}/appointments:
+    get:
+      tags:
+        - Appointment
+      summary: Коллекция назначений
+      operationId: "AppointmentCollection"
+      parameters:
+        - $ref: "#/parameters/userID"
+        - $ref: "#/parameters/filter.dateFrom"
+        - $ref: "#/parameters/filter.dateTo"
+        - $ref: "#/parameters/filter.typeCode"
+        - $ref: "#/parameters/filter.statusCode"
+        - $ref: "#/parameters/limit"
+        - $ref: "#/parameters/offset"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Appointment_response_200"
+        400:
+          $ref: "#/responses/Appointment_response_400"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /users/{userID}/appointments/{appointmentID}:
+    parameters:
+      - $ref: "#/parameters/userID"
+      - $ref: "#/parameters/appointmentID"
+    get:
+      tags:
+        - Appointment
+      summary: Информация о назначении
+      operationId: "AppointmentView"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Appointment_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /users/{userID}/appointments/{appointmentID}/params:
+    parameters:
+      - $ref: "#/parameters/userID"
+      - $ref: "#/parameters/appointmentID"
+      - $ref: "#/parameters/limit"
+      - $ref: "#/parameters/offset"
+    get:
+      tags:
+        - Appointment
+      summary: Параметры назначения
+      operationId: "AppointmentParamsCollection"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Appointment_params_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /users/{userID}/programs:
+    parameters:
+      - $ref: "#/parameters/userID"
+    get:
+      tags:
+        - Program
+      summary: Коллекция программ назначений
+      operationId: "AppointmentProgramCollection"
+      parameters:
+        - $ref: "#/parameters/limit"
+        - $ref: "#/parameters/offset"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Appointment_program_response_200"
+        401:
+          $ref: "#/responses/Base_response_401"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /users/{userID}/programs/{programID}:
+    parameters:
+      - $ref: "#/parameters/programID"
+      - $ref: "#/parameters/userID"
+    get:
+      tags:
+        - Program
+      summary: Информация о программе назначений
+      operationId: "AppointmentProgramView"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Appointment_program_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /employees/{employeeID}:
+    parameters:
+      - $ref: "#/parameters/employeeID"
+    get:
+      tags:
+        - Employee
+      summary: Информация о сотруднике клиники
+      operationId: "EmployeeView"
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Employee_response_200"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+responses:
+  Base_response_400:
+    description: "Ошибка валидации"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_400_data"
+        - type: object
+          properties:
+            message:
+              type: string
+              example: "Authentication failure"
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+                core:
+                  type: string
+                json:
+                  type: string
+          required:
+            - message
+            - errors
+
+  Registration_response_400:
+    description: Validation error
+    schema:
+      allOf:
+        - $ref: "#/responses/Base_response_400"
+        - type: object
+        - properties:
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                        - format
+                    mobile:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                        - format
+
+  Confirm_response_400:
+    description: Validation error
+    schema:
+      allOf:
+        - $ref: "#/responses/Base_response_400"
+        - type: object
+        - properties:
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                        - required
+                    password:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                        - required
+
+  Profile_response_400:
+    description: Validation error
+    schema:
+      allOf:
+        - $ref: "#/responses/Base_response_400"
+        - type: object
+        - properties:
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+                  properties:
+                    firstName:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                    lastName:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                    patronymic:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                    theme:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                        - oneof
+                    locale:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                        - format
+
+  Contact_response_400:
+    description: Validation error
+    schema:
+      allOf:
+        - $ref: "#/responses/Base_response_400"
+        - type: object
+        - properties:
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+                  properties:
+                    mobile:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                        - format
+                    email:
+                      type: string
+                      example: string
+                      enum:
+                        - string
+                        - format
+
+  Appointment_response_400:
+    description: Validation error
+    schema:
+      allOf:
+        - $ref: "#/responses/Base_response_400"
+        - type: object
+        - properties:
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+                  properties:
+                    dateFrom:
+                      type: string
+                      example: format
+                      enum:
+                        - format
+                        - required
+                    dateTo:
+                      type: string
+                      example: format
+                      enum:
+                        - format
+                        - required
+                    statusCode:
+                      type: string
+                      example: oneof
+                      enum:
+                        - oneof
+
+  Base_response_401:
+    description: "Access denied"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_401_data"
+
+  Base_response_404:
+    description: "Not found"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_404_data"
+
+  Base_response_405:
+    description: "Invalid Method"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_405_data"
+
+  Base_response_500:
+    description: "Internal server error"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_500_data"
+
+  Base_response_200:
+    description: "SUCCESS"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items: {}
+          required:
+            - data
+
+  Profile_response_200:
+    description: "Объект профиля пациента"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Profile_object"
+                x-go-name: profile-data-item
+          required:
+            - data
+
+  Contact_response_200:
+    description: "Объект контакта пациента"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Contact_object"
+                x-go-name: contact-data-item
+          required:
+            - data
+
+  Appointment_response_200:
+    description: "Коллекция медицинских назначений"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Appointment_object"
+                x-go-name: appointment-data-item
+          required:
+            - data
+
+  Appointment_params_response_200:
+    description: "Коллекция объектов параметров медицинского назначения"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Appointment_param_object"
+                x-go-name: appointment-params-data-item
+          required:
+            - data
+
+  Appointment_program_response_200:
+    description: "Коллекция объектов программ медицинских назначений"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Appointment_program_object"
+                x-go-name: program-data-item
+          required:
+            - data
+
+  Employee_response_200:
+    description: "Объект информации о сотруднике"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - $ref: "#/definitions/Employee_object"
+                x-go-name: employee-data-item
+          required:
+            - data
+
+definitions:
+  Base_data:
+    description: Возвращает статус ответа
+    type: object
+    properties:
+      version:
+        type: string
+        description: "Версия ответа сервиса"
+        example: "2.0.0"
+    required:
+      - version
+
+  Success_data:
+    description: Все хорошо
+    allOf:
+      - $ref: "#/definitions/Base_data"
+      - type: object
+        title: Success_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "SUCCESS"
+          errors:
+            type: array
+            items: {}
+            example: null
+        required:
+          - message
+          - errors
+
+  Error_data:
+    description: Все плохо
+    allOf:
+      - $ref: "#/definitions/Base_data"
+      - type: object
+        title: Error_data
+        properties:
+          data:
+            example: null
+        required:
+          - data
+
+  Error_400_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_400_data
+        properties:
+          message:
+            type: string
+            example: "Validation error"
+          errors:
+            type: array
+            items: {}
+        required:
+          - message
+          - errors
+
+  Error_401_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_401_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Invalid token"
+          errors:
+            type: array
+            items: {}
+        required:
+          - message
+          - errors
+
+  Error_404_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_404_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Entity not found"
+          errors:
+            type: array
+            items: {}
+            example: null
+        required:
+          - message
+          - errors
+
+  Error_405_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_405_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Method ${METHOD} not allowed"
+          errors:
+            example: null
+
+  Error_500_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_500_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Internal server error"
+          errors:
+            example: null
+        required:
+          - message
+          - errors
+
+
+  Profile_object:
+    title: Screening_object
+    properties:
+      firstName:
+        type: string
+        minLength: 1
+        example: "Иван"
+        description: "Имя"
+      lastName:
+        type: string
+        minLength: 1
+        example: "Иванов"
+        description: "Фамилия"
+      patronymic:
+        type: string
+        minLength: 1
+        example: "Иванович"
+        description: "Отчество"
+      theme:
+        type: string
+        example: "DARK"
+        description: "Тема интерфейса"
+        enum:
+          - "DARK"
+          - "LIGHT"
+      locale:
+        type: string
+        minLength: 1
+        example: "RUS"
+        description: "Локаль интерфейса"
+        pattern: '^[A-Z]{3}$'
+
+  Contact_object:
+    title: Contact_object
+    properties:
+      type:
+        type: string
+        enum:
+          - "EMAIL"
+          - "MOBILE"
+        description: "тип контактных данных"
+        example: "EMAIL"
+      value:
+        type: string
+        description: "Контактные данные"
+        example: "user@company.com"
+      verified:
+        type: boolean
+        description: "Статус подтверждения"
+        example: true
+
+  Registration_object:
+    title: Registration_object
+    properties:
+      mobile:
+        type: string
+        example: "12356789"
+        description: "Номер мобильного телефона"
+        pattern: '\d{11}'
+        "x-nullable": true
+      email:
+        type: string
+        example: "a@b.ru"
+        description: "E-mail адрес"
+        format: email
+        "x-nullable": true
+
+
+  Confirmation_object:
+    title: Confirmation_object
+    properties:
+      code:
+        type: string
+        description: "Код подтверждения"
+        example: "1234"
+      password:
+        type: string
+        description: "Пароль пользователя"
+        example: "example password"
+    required:
+      - code
+      - password
+
+  Appointment_object:
+    title: Appointment_object
+    properties:
+      ID:
+        type: string
+        format: uuid
+        description: "Идентификатор назначения"
+        example: "5f253247-92b1-49cb-add9-aaa05b63d58e"
+      programID:
+        type: string
+        format: uuid
+        description: "Идентификатор программы лечения"
+        example: "5f253247-92b1-49cb-add9-aaa05b63d58e"
+      typeCode:
+        type: string
+        description: "Кодификатор типа назначения"
+        example: "DRUG"
+      planned:
+        type: string
+        format: date-time
+        description: "Плановая дата назначения"
+        example: "2019-03-08T08:06:54Z"
+      performed:
+        type: string
+        format: date-time
+        description: "Фактическая дата выполнения назначения"
+        example: "2019-03-08T08:06:54Z"
+        x-nullable: true
+        x-omitempty: false
+      duration:
+        type: integer
+        description: "Продолжительность выполнения назанчения"
+        example: 300
+        x-nullable: true
+        x-omitempty: false
+      statusCode:
+        type: string
+        description: "Статус выполнения назначения"
+        example: "PERFORMED"
+        enum:
+          - "PERFORMED"
+          - "NOT_PERFORMED"
+          - "HALF_PERFORMED"
+      doctorID:
+        type: string
+        format: uuid
+        description: "Идентификатор врача"
+        example: "82d8c94f-10f3-40fd-8889-b6f15d2f8d64"
+        x-nullable: true
+        x-omitempty: false
+      comment:
+        type: string
+        description: "Комментарий врача"
+        example: "Пример комментария"
+        x-nullable: true
+        x-omitempty: false
+
+  Appointment_param_object:
+    title: Appointment_param_object
+    properties:
+      typeCode:
+        type: string
+        description: "Кодификатор типа параметра"
+        example: "123"
+      value:
+        type: string
+        description: "Значение параметра"
+        example: "123"
+    required:
+      - typeCode
+      - value
+
+  Employee_object:
+    title: Employee_object
+    properties:
+      ID:
+        type: string
+        format: uuid
+        description: "Идентификатор сотрудника клиники"
+        example: "3c2713df-690a-4ebf-8364-8caccf806940"
+        x-nullable: true
+        x-omitempty: false
+      firstName:
+        type: string
+        minLength: 1
+        example: "Иван"
+        description: "Имя"
+      lastName:
+        type: string
+        minLength: 1
+        example: "Иванов"
+        description: "Фамилия"
+      patronymic:
+        type: string
+        minLength: 1
+        example: "Иванович"
+        description: "Отчество"
+        x-nullable: true
+        x-omitempty: false
+      photoID:
+        type: string
+        format: uuid
+        description: "Идентификатор аватара на статик-сервисе"
+        example: "82d8c94f-10f3-40fd-8889-b6f15d2f8d64"
+        x-nullable: true
+        x-omitempty: false
+
+  Appointment_program_object:
+    title: Appointment_program_object
+    properties:
+      ID:
+        type: string
+        format: uuid
+        description: "Идентификатор программы назначений"
+        example: "82d8c94f-10f3-40fd-8889-b6f15d2f8d64"
+      typeCode:
+        type: string
+        description: "Тип программы назначений"
+      begin:
+        type: string
+        format: date-time
+        description: "Дата начала программы назанчения"
+        example: "2019-03-08T08:06:54Z"
+      end:
+        type: string
+        format: date-time
+        description: "Дата окончания программы назанчения"
+        example: "2019-03-08T08:06:54Z"
+        x-nullable: true
+        x-omitempty: false
+      statusCode:
+        type: string
+        description: "Статус программы назначений"
+        example: "OPEN"
+        enum:
+          - "OPEN"
+          - "CLOSED"
+      doctorID:
+        type: string
+        format: uuid
+        description: "Идентификатор врача"
+        example: "82d8c94f-10f3-40fd-8889-b6f15d2f8d64"
+        x-nullable: true
+        x-omitempty: false
+      comment:
+        type: string
+        description: "Комментарий врача"
+        example: "пример комментария"
+        x-nullable: true
+        x-omitempty: false
+      periodicity:
+        type: string
+        description: "Периодичность"
+        example: "3 раза в день"
+        x-nullable: true
+        x-omitempty: false

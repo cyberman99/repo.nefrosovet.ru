@@ -1,0 +1,1795 @@
+openapi: 3.0.2
+info:
+  version: 1.0.0
+  title: go-lms
+  description: |
+    #### RESTFULL LMS VIDEO API
+servers:
+  - url: "http://lms.nefrosovet.ru"
+paths:
+  /api/medooze:
+    post:
+      parameters:
+        - $ref: "#/components/parameters/conf"
+        - $ref: "#/components/parameters/event"
+        - $ref: "#/components/parameters/state"
+        - $ref: "#/components/parameters/part"
+        - $ref: "#/components/parameters/confId"
+      tags:
+        - medooze
+      summary: "Обработка событий"
+      operationId: "event_handler"
+      responses:
+        200:
+          $ref: "#/components/responses/medooze_response_200"
+        500:
+          $ref: "#/components/responses/medooze_response_500"
+  /api/v1/user:
+    get:
+      security:
+        - AuthToken: []
+      tags:
+        - user
+      summary: "Получение списка юзеров"
+      operationId: "user_index"
+      responses:
+        200:
+          $ref: "#/components/responses/user_index_response_200"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    post:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/sip"
+      tags:
+        - user
+      summary: Создание юзера
+      operationId: "user_store"
+      responses:
+        200:
+          $ref: "#/components/responses/user_store_response_200"
+        400:
+          $ref: "#/components/responses/user_store_response_400"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/user/{userID}:
+    get:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/userID"
+      tags:
+        - user
+      summary: Данные юзера
+      operationId: "user_show"
+      responses:
+        200:
+          $ref: "#/components/responses/user_show_response_200"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        405:
+          $ref: "#/components/responses/base_response_405"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar:
+    get:
+      security:
+        - AuthToken: []
+      tags:
+        - webinar
+      summary: "Получение списка вебинаров"
+      operationId: "webinar_index"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_index_response_200"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    post:
+      security:
+        - AuthToken: []
+      tags:
+        - webinar
+      summary: "Создание вебинара"
+      operationId: "webinar_store"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_create_response_200"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{id}:
+    get:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/id"
+      tags:
+        - webinar
+      summary: "Получение вебинара"
+      operationId: "webinar_show"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_show_response_200"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    delete:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/id"
+      tags:
+        - webinar
+      summary: "Заверешение вебинара"
+      operationId: "webinar_destroy"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_destroy_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/stream:
+    get:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+      tags:
+        - webinar stream
+      summary: "Получение списка потоков"
+      operationId: "webinar_stream_index"
+      responses:
+        200:
+          $ref: "#/components/responses/stream_index_response_200"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    post:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/fileId"
+      tags:
+        - webinar stream
+      summary: "Создание потока"
+      operationId: "webinar_stream_store"
+      responses:
+        200:
+          $ref: "#/components/responses/stream_create_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/stream/{streamID}:
+    patch:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/streamID"
+        - $ref: "#/components/parameters/action"
+        - $ref: "#/components/parameters/page"
+      tags:
+        - webinar stream
+      summary: "Изменение данных потока"
+      operationId: "webinar_stream_update"
+      responses:
+        200:
+          $ref: "#/components/responses/stream_update_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    delete:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/streamID"
+      tags:
+        - webinar stream
+      summary: "Удаление потока"
+      operationId: "webinar_stream_destroy"
+      responses:
+        200:
+          $ref: "#/components/responses/root_response_200"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/user:
+    get:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+      tags:
+        - webinar user
+      summary: "Получение списка юзеров вебинара"
+      operationId: "webinar_user_index"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_user_index_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        401:
+          $ref: "#/components/responses/base_response_401"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    post:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/label"
+      tags:
+        - webinar user
+      summary: "Создание юзера вебинара"
+      operationId: "webinar_user_store"
+      responses:
+        200:
+          $ref: "#/components/responses/root_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/user/{userID}:
+    get:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/userID"
+      tags:
+        - webinar user
+      summary: "Получение юзера вебинара"
+      operationId: "webinar_user_show"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_user_show_update_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    patch:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/userID"
+        - $ref: "#/components/parameters/mic"
+        - $ref: "#/components/parameters/sound"
+      tags:
+        - webinar user
+      summary: "Изменение юзера вебинара"
+      operationId: "webinar_user_update"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_user_show_update_response_200"
+        400:
+          $ref: "#/components/responses/webinar_user_update_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    delete:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/userID"
+      tags:
+        - webinar user
+      summary: "Удаление юзера вебинара"
+      operationId: "webinar_user_destroy"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_user_destroy_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/user/{userID}/mosaic:
+    post:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/userID"
+        - $ref: "#/components/parameters/mosaicId"
+      tags:
+        - webinar user mosaic
+      summary: "Создание мозаики юзера вебинара"
+      operationId: "webinar_user_mosaic_store"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_user_mosaic_store_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/mosaic/:
+    get:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+      tags:
+        - webinar mosaic
+      summary: "Получение списка мозаик вебинара"
+      operationId: "webinar_mosaic_index"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_mosaic_index_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    post:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/templateId"
+      tags:
+        - webinar mosaic
+      summary: "Создание мозаики вебинара"
+      operationId: "webinar_mosaic_store"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_mosaic_data_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/mosaic/{mosaicID}:
+    get:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/mosaicID"
+      tags:
+        - webinar mosaic
+      summary: "Получение мозаики вебинара"
+      operationId: "webinar_mosaic_show"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_mosaic_data_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    patch:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/mosaicID"
+        - $ref: "#/components/parameters/templateId"
+      tags:
+        - webinar mosaic
+      summary: "Изменение мозаики вебинара"
+      operationId: "webinar_mosaic_update"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_mosaic_data_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    delete:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/mosaicID"
+      tags:
+        - webinar mosaic
+      summary: "Удаление мозаики вебинара"
+      operationId: "webinar_mosaic_destroy"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_mosaic_destroy_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/mosaic/{mosaicID}/user:
+    get:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/mosaicID"
+      tags:
+        - webinar mosaic user
+      summary: "Получение списка юзеров мозаики вебинара"
+      operationId: "webinar_mosaic_user_index"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_mosaic_user_index_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+    post:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/mosaicID"
+        - $ref: "#/components/parameters/userId"
+      tags:
+        - webinar mosaic user
+      summary: "Получение списка мозаик вебинара"
+      operationId: "webinar_mosaic_user_store"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_user_mosaic_store_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/mosaic/{mosaicID}/user/{userID}:
+    delete:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/mosaicID"
+        - $ref: "#/components/parameters/userID"
+      tags:
+        - webinar mosaic user
+      summary: "Получение юзера мозаики вебинара"
+      operationId: "webinar_mosaic_user_show"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_mosaic_user_destroy_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/mosaic/{mosaicID}/slot:
+    get:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/mosaicID"
+      tags:
+        - webinar mosaic slot
+      summary: "Получение списка слотов мозаики вебинара"
+      operationId: "webinar_mosaic_slot_index"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_mosaic_slot_index_response_200"
+        400:
+          $ref: "#/components/responses/base_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+  /api/v1/webinar/{webinarID}/mosaic/{mosaicID}/slot/{slotID}:
+    patch:
+      security:
+        - AuthToken: []
+      parameters:
+        - $ref: "#/components/parameters/webinarID"
+        - $ref: "#/components/parameters/mosaicID"
+        - $ref: "#/components/parameters/slotID"
+        - $ref: "#/components/parameters/type"
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/streamId"
+      tags:
+        - webinar mosaic slot
+      summary: "Изменение слота мозаики вебинара"
+      operationId: "webinar_mosaic_slot_update"
+      responses:
+        200:
+          $ref: "#/components/responses/webinar_mosaic_slot_update_response_200"
+        400:
+          $ref: "#/components/responses/base_array_response_400"
+        404:
+          $ref: "#/components/responses/base_response_404"
+        500:
+          $ref: "#/components/responses/base_response_500"
+components:
+  securitySchemes:
+    AuthToken:
+      type: apiKey
+      in: header
+      name: token
+  headers:
+    access-Control-Allow-Origin:
+      schema:
+        type: string
+    access-Control-Allow-Credentials:
+      schema:
+        type: string
+    access-Control-Allow-Methods:
+      schema:
+        type: string
+    access-Control-Allow-Headers:
+      schema:
+        type: string
+  schemas:
+    users_data:
+      description: "Данные юзера"
+      allOf:
+        - type: object
+          properties:
+            user_id:
+              type: integer
+              description: "Идентификатор пользователя"
+              example: 5
+            sip:
+              type: string
+              description: "SIP"
+              example: "sip:video@static"
+          required:
+            - user_id
+            - sip
+    user_validation_data:
+      description: "Ошибки валидации юзера"
+      allOf:
+        - type: object
+          properties:
+            required:
+              type: string
+              description: "Не указан sip"
+              example: "The :attribute field is required"
+              x-nullable: true
+            sip_valid:
+              type: string
+              description: "Неверный формат sip"
+              example: "Bad sipUrl format or invalid domain"
+              x-nullable: true
+    webinar_user_validation_data:
+      description: "Ошибки валидации юзера вебинара"
+      allOf:
+        - type: object
+          properties:
+            required_without:
+              type: string
+              description: "Не указан"
+              example: "The :attribute field is required when :values is not present."
+              x-nullable: true
+            numeric:
+              type: string
+              description: "Неверный формат"
+              example: "The :attribute must be a number"
+              x-nullable: true
+    user_create_data:
+      description: "ID созданного юзера"
+      allOf:
+        - type: object
+          properties:
+            userId:
+              type: integer
+              description: "ID юзера"
+              example: "5"
+          required:
+            - userId
+    webinar_create_data:
+      description: "ID созданного юзера"
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              description: "ID вебинара"
+              example: 5
+            DID:
+              type: string
+              description: "did"
+              example: "EMPTY46595"
+            status:
+              type: string
+              enum:
+                - "READY"
+                - "ONLINE"
+                - "OFFLINE"
+                - "FINISHING"
+                - "FINISHED"
+              description: "статус вебинара"
+              example: "ONLINE"
+          required:
+            - id
+            - DID
+            - status
+    user_data:
+      description: "Данные юзера"
+      allOf:
+        - type: object
+          properties:
+            username:
+              type: string
+              description: "Имя юзера"
+              example: "Федор"
+            password:
+              type: string
+              description: "пароль"
+              example: "VhoAsiUNPMrsSnNi20ER"
+          required:
+            - username
+            - password
+    stream_data:
+      description: "Данные потока"
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              description: "ID потока"
+              example: 15
+            status:
+              type: string
+              description: "Статус потока"
+              enum:
+                - "INIT"
+                - "PLAY"
+                - "STOP"
+                - "PAUSE"
+                - "FINISH"
+              example: "PLAY"
+          required:
+            - id
+            - status
+    slot_type_data:
+      description: "Тип слота"
+      type: string
+      enum:
+        - "VAD"
+        - "LOCK"
+        - "FREE"
+        - "USER"
+      example: "FREE"
+    webinar_user_destroy_data:
+      description: "Данные юзера"
+      allOf:
+        - type: object
+          properties:
+            webinar:
+              type: integer
+              description: "ID вебинара"
+              example: "56"
+            userId:
+              type: integer
+              description: "ID юзера"
+              example: "70"
+            subscriberId:
+              type: integer
+              description: "ID подписчика"
+              example: "80"
+            status:
+              type: string
+              description: "Строка"
+              example: "Subscribers delete from webinar"
+          required:
+            - webinar
+            - userId
+            - subscriberId
+            - status
+    stream_create_data:
+      description: "Данные созданного потока"
+      allOf:
+        - type: object
+          properties:
+            stream_id:
+              type: integer
+              description: "ID потока"
+              example: 15
+            file_id:
+              type: integer
+              description: "file_id"
+              example: 567
+          required:
+            - stream_id
+            - file_id
+    webinar_mosaic_data_with_template:
+      description: "Данные мозаики"
+      allOf:
+        - $ref: "#/components/schemas/webinar_mosaic_data"
+        - type: object
+          properties:
+            template:
+              type: string
+              description: "mosaic json data"
+              example: '{"m_id":453,"number":"dsfgds","destination":"2","type":34,"size":24,"slot_count":3,"user_min":1,"user_max":5}'
+          required:
+            - mosaicId
+            - template
+    webinar_mosaic_data:
+      description: "Данные мозаики"
+      allOf:
+        - type: object
+          properties:
+            mosaicId:
+              type: integer
+              description: "ID мозаики"
+              example: 15
+          required:
+            - mosaicId
+    webinar_user_mosaic_store_data:
+      description: "Данные new mosaic"
+      allOf:
+        - type: object
+          properties:
+            webinarId:
+              type: integer
+              description: "ID вебинара"
+              example: 15
+            mosaicId:
+              type: integer
+              description: "id мозаики"
+              example: 567
+            state:
+              type: string
+              description: "статус"
+              example: "45 added"
+          required:
+            - webinarId
+            - mosaicId
+            - state
+    webinar_mosaic_slot_update_data:
+      description: "slot update element"
+      allOf:
+        - type: object
+          properties:
+            slotId:
+              type: integer
+              description: "ID слота"
+              example: 15
+            type:
+              type: string
+              description: "Тип слота"
+              enum:
+                - "LOCK"
+                - "FREE"
+                - "VAD"
+                - "USER"
+                - "STREAM"
+              example: "USER"
+          required:
+            - slotId
+            - type
+    webinar_mosaic_user_destroy_data:
+      description: "Данные mosaic"
+      allOf:
+        - type: object
+          properties:
+            webinarId:
+              type: integer
+              description: "ID вебинара"
+              example: 15
+            mosaicId:
+              type: integer
+              description: "id мозаики"
+              example: 567
+            userId:
+              type: integer
+              description: "id мозаики"
+              example: 567
+          required:
+            - webinarId
+            - mosaicId
+            - userId
+    webinar_mosaic_user_index_data:
+      description: "mosaic user list"
+      allOf:
+        - type: object
+          properties:
+            usersCount:
+              type: integer
+              description: "Количество юзеров"
+              example: 15
+            users:
+              type: array
+              items:
+                $ref: "#/components/schemas/webinar_user_json_data"
+          required:
+            - usersCount
+            - users
+    api_message:
+      description: API ответ
+      allOf:
+        - type: object
+          title: api_message
+          properties:
+            error:
+              type: boolean
+              description: "Флаг ошибки"
+              example: false
+            code:
+              type: integer
+              description: "HTTP код ответа"
+              example: 200
+            message:
+              type: string
+              description: "Сообщение ответа"
+              example: "Hello"
+    api_error:
+      description: API ответ ошибки
+      allOf:
+        - type: object
+          title: api_error
+          properties:
+            error:
+              type: boolean
+              description: "Флаг ошибки"
+              example: false
+            code:
+              type: integer
+              description: "HTTP код ответа"
+              example: 200
+            data:
+              type: array
+              items: {}
+    api_data_string_object:
+      description: "API ответ"
+      type: object
+      title: api_data_string_object
+      properties:
+        data:
+          type: string
+          description: "Данные ответа"
+          example: "OK!"
+    api_message_string_object:
+      description: API ответ
+      type: object
+      title: api_message_string_object
+      properties:
+        message:
+          type: string
+          description: "Данные ответа"
+          example: "Method Not Allowed"
+    api_message_array_string_object:
+      description: API ответ
+      type: object
+      title: api_message_array_string_object
+      properties:
+        message:
+          type: array
+          items:
+            type: string
+            example: "The :attribute field is required"
+    api_user_index_object:
+      description: API ответ
+      type: object
+      title: api_user_index_object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/users_data"
+    api_user_index_errors_object:
+      description: API ответ
+      type: object
+      title: api_user_index_errors_object
+      properties:
+        message:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/user_validation_data"
+    api_webinar_user_update_errors_object:
+      description: API ответ
+      type: object
+      title: api_webinar_user_update_errors_object
+      properties:
+        message:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_user_validation_data"
+    api_user_store_object:
+      description: API ответ
+      type: object
+      title: api_user_store_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/user_create_data"
+    api_user_show_object:
+      description: API ответ
+      type: object
+      title: api_user_show_object
+      properties:
+        data:
+          $ref: "#/components/schemas/user_data"
+    webinar_json_data:
+      type: string
+      description: "json данных вебинара"
+      example: '{"id":150,"created_at":1579600662,"updated_at":1579600662,"account_id":583,"meta":"metadata","did":"did","status":"READY","conf_id":"its_medooze_conf_id","watch_pin":45}'
+    webinar_user_json_data:
+      type: string
+      description: "json данных юзера вебинара"
+      example: '{"id":45,"user_id":544,"webinar_id":234,"status":"ONLINE","medooze_id":54345,"old_medooze_id":7675,"mic":5,"sound":3}'
+    api_webinar_index_object:
+      description: API ответ
+      type: object
+      title: api_webinar_index_object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/webinar_json_data"
+    api_webinar_store_object:
+      description: API ответ
+      type: object
+      title: api_webinar_store_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_create_data"
+    api_webinar_show_object:
+      description: API ответ
+      type: object
+      title: api_webinar_show_object
+      properties:
+        data:
+          $ref: "#/components/schemas/webinar_json_data"
+    api_stream_index_object:
+      description: API ответ
+      type: object
+      title: api_stream_index_object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/stream_data"
+    api_stream_store_object:
+      description: API ответ
+      type: object
+      title: api_stream_store_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/stream_create_data"
+    api_empty_data_object:
+      description: API ответ
+      type: object
+      title: api_empty_data_object
+      properties:
+        data:
+          type: array
+          items: {}
+    api_webinar_user_index_object:
+      description: API ответ
+      type: object
+      title: api_webinar_user_index_object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/webinar_user_json_data"
+    api_webinar_user_show_update_object:
+      description: API ответ
+      type: object
+      title: api_webinar_user_show_update_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_user_json_data"
+    api_webinar_user_destroy_object:
+      description: API ответ
+      type: object
+      title: api_webinar_user_destroy_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_user_destroy_data"
+    api_webinar_user_mosaic_store_object:
+      description: API ответ
+      type: object
+      title: api_webinar_user_mosaic_store_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_user_mosaic_store_data"
+    api_webinar_mosaic_index_object:
+      description: API ответ
+      type: object
+      title: api_webinar_mosaic_index_object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/webinar_mosaic_data_with_template"
+    api_webinar_mosaic_data_object:
+      description: API ответ
+      type: object
+      title: api_webinar_mosaic_data_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_mosaic_data_with_template"
+    api_webinar_mosaic_destroy_object:
+      description: API ответ
+      type: object
+      title: api_webinar_mosaic_destroy_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_mosaic_data"
+    api_webinar_mosaic_user_index_object:
+      description: API ответ
+      type: object
+      title: api_webinar_mosaic_user_index_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_mosaic_user_index_data"
+    api_webinar_mosaic_user_destroy_object:
+      description: API ответ
+      type: object
+      title: api_webinar_mosaic_user_destroy_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_mosaic_user_destroy_data"
+    api_webinar_mosaic_slot_index_object:
+      description: API ответ
+      type: object
+      title: api_webinar_mosaic_slot_index_object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/slot_type_data"
+    api_webinar_mosaic_slot_update_object:
+      description: API ответ
+      type: object
+      title: api_webinar_mosaic_slot_update_object
+      properties:
+        data:
+          type: object
+          allOf:
+            - $ref: "#/components/schemas/webinar_mosaic_slot_update_data"
+  responses:
+    root_response_200:
+      description: apiMessage response
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_data_string_object"
+    medooze_response_200:
+      description: OK response
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - type: string
+                example: "OK!"
+    medooze_response_500:
+      description: Error message response
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_error"
+              - $ref: "#/components/schemas/api_message_string_object"
+    base_response_400:
+      description: Error message response
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_error"
+              - $ref: "#/components/schemas/api_message_string_object"
+    base_response_401:
+      description: Error message response
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_error"
+              - $ref: "#/components/schemas/api_message_string_object"
+    base_response_404:
+      description: Error message response
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_error"
+              - $ref: "#/components/schemas/api_message_string_object"
+    base_response_405:
+      description: Error message response
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_error"
+              - $ref: "#/components/schemas/api_message_string_object"
+    base_response_500:
+      description: Error message response
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_error"
+              - $ref: "#/components/schemas/api_message_string_object"
+    base_array_response_400:
+      description: Error message response
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_error"
+              - $ref: "#/components/schemas/api_message_array_string_object"
+    user_index_response_200:
+      description: Список юзеров
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_user_index_object"
+    user_store_response_400:
+      description: Список ошибок валидации
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_error"
+              - $ref: "#/components/schemas/api_user_index_errors_object"
+    user_store_response_200:
+      description: ID созданного юзера
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_user_store_object"
+    user_show_response_200:
+      description: Данные юзера
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_user_show_object"
+    webinar_index_response_200:
+      description: Список вебинаров
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_index_object"
+    webinar_create_response_200:
+      description: Данные созданного вебинара
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_store_object"
+    webinar_show_response_200:
+      description: Данные вебинара
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_show_object"
+    webinar_destroy_response_200:
+      description: webinar data
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_show_object"
+    stream_index_response_200:
+      description: user streams
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_stream_index_object"
+    stream_create_response_200:
+      description: user stream data
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_stream_store_object"
+    stream_update_response_200:
+      description: stream patch data
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_empty_data_object"
+    webinar_user_index_response_200:
+      description: webinar users list
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_user_index_object"
+    webinar_user_show_update_response_200:
+      description: webinar users list
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_user_show_update_object"
+    webinar_user_update_response_400:
+      description: webinar user validation errors
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_error"
+              - $ref: "#/components/schemas/api_webinar_user_update_errors_object"
+    webinar_user_destroy_response_200:
+      description: webinar user destroy result
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_user_destroy_object"
+    webinar_user_mosaic_store_response_200:
+      description: webinar user store
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_user_mosaic_store_object"
+    webinar_mosaic_index_response_200:
+      description: webinar mosaic list
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_mosaic_index_object"
+    webinar_mosaic_data_response_200:
+      description: webinar mosaic data
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_mosaic_data_object"
+    webinar_mosaic_destroy_response_200:
+      description: webinar mosaic destroy
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_mosaic_destroy_object"
+    webinar_mosaic_user_index_response_200:
+      description: webinar mosaic user index
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_mosaic_user_index_object"
+    webinar_mosaic_user_destroy_response_200:
+      description: webinar mosaic user destroy
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_mosaic_user_destroy_object"
+    webinar_mosaic_slot_index_response_200:
+      description: webinar mosaic slot list
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_mosaic_slot_index_object"
+    webinar_mosaic_slot_update_response_200:
+      description: webinar mosaic slot update
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: "#/components/headers/access-Control-Allow-Origin"
+        Access-Control-Allow-Credentials:
+          $ref: "#/components/headers/access-Control-Allow-Credentials"
+        Access-Control-Allow-Methods:
+          $ref: "#/components/headers/access-Control-Allow-Methods"
+        Access-Control-Allow-Headers:
+          $ref: "#/components/headers/access-Control-Allow-Headers"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/api_message"
+              - $ref: "#/components/schemas/api_webinar_mosaic_slot_update_object"
+  parameters:
+    conf:
+      name: conf
+      in: query
+      required: true
+      schema:
+        type: string
+    event:
+      name: event
+      in: query
+      required: true
+      schema:
+        type: string
+      description: "Тип события"
+    state:
+      name: state
+      schema:
+        type: string
+      in: query
+      required: false
+    part:
+      name: part
+      schema:
+        type: string
+      in: query
+      required: false
+    confId:
+      name: confId
+      schema:
+        type: string
+      in: query
+      required: false
+    sip:
+      name: sip
+      in: query
+      schema:
+        type: string
+    userID:
+      name: userID
+      in: path
+      required: true
+      schema:
+        type: integer
+    id:
+      name: id
+      in: path
+      schema:
+        type: integer
+      required: true
+    webinarID:
+      name: webinarID
+      in: path
+      schema:
+        type: integer
+      required: true
+    streamID:
+      name: streamID
+      in: path
+      schema:
+        type: integer
+      required: true
+    action:
+      name: action
+      in: query
+      schema:
+        type: string
+        enum:
+          - "play"
+          - "pause"
+          - "goto"
+      required: true
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+    userId:
+      name: userId
+      in: query
+      schema:
+        type: integer
+    label:
+      name: label
+      in: query
+      schema:
+        type: string
+    mic:
+      name: mic
+      in: query
+      schema:
+        type: integer
+      required: true
+    sound:
+      name: sound
+      in: query
+      schema:
+        type: integer
+      required: true
+    fileId:
+      name: fileId
+      in: query
+      schema:
+        type: integer
+      required: true
+    mosaicId:
+      name: mosaicId
+      in: query
+      schema:
+        type: integer
+      required: true
+    templateId:
+      name: templateId
+      in: query
+      schema:
+        type: integer
+      required: true
+    mosaicID:
+      name: mosaicID
+      in: path
+      schema:
+        type: integer
+      required: true
+    slotID:
+      name: slotID
+      in: path
+      schema:
+        type: integer
+      required: true
+    type:
+      name: type
+      in: query
+      schema:
+        type: string
+        enum:
+          - "LOCK"
+          - "FREE"
+          - "VAD"
+          - "USER"
+          - "STREAM"
+      required: true
+    streamId:
+      name: streamId
+      in: query
+      schema:
+        type: integer
+      required: false

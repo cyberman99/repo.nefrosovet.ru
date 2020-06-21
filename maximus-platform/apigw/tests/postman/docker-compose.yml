@@ -1,0 +1,134 @@
+version: '3.7'
+networks:
+ apigw:
+
+services:
+ api:
+  image: "${CI_REGISTRY_IMAGE}/api:${CI_PIPELINE_ID}"
+  container_name: "api-${CI_JOB_ID}"
+  environment:
+   - APIGW_HTTP_HOST=0.0.0.0
+   - APIGW_HTTP_PORT=80
+   - APIGW_LOGGING_LEVEL=DEBUG
+   - APIGW_CONFIGDB_HOST=config_db
+   - APIGW_CONFIGDB_DATABASE=apigw
+   - APIGW_EVENTDB_HOST=event_db
+   - APIGW_EVENTDB_DATABASE=apigw
+   - APIGW_EVENTDB_LOGIN=admin
+   - APIGW_EVENTDB_PASSWORD=FqTfXq7e5d
+   - APIGW_SENTRYDSN=https://a79b996f0ae641b794e6068e76112c91@sentry.diacare-soft.ru/11
+  networks:
+   - apigw
+  ports:
+   - "80"
+  depends_on:
+   - config_db
+   - event_db
+
+ proxy:
+  image: "${CI_REGISTRY_IMAGE}/proxy:${CI_PIPELINE_ID}"
+  container_name: "proxy-${CI_JOB_ID}"
+  environment:
+   - APIGW_JWKURL=http://auth_app/jwk
+   - APIGW_HTTP_HOST=0.0.0.0
+   - APIGW_HTTP_PORT=80
+   - APIGW_LOGGING_LEVEL=DEBUG
+   - APIGW_CONFIGDB_HOST=config_db
+   - APIGW_CONFIGDB_DATABASE=apigw
+   - APIGW_EVENTDB_HOST=event_db
+   - APIGW_EVENTDB_DATABASE=apigw
+   - APIGW_EVENTDB_LOGIN=admin
+   - APIGW_EVENTDB_PASSWORD=FqTfXq7e5d
+   - APIGW_PROXY_HOST=mock
+   - APIGW_PROXY_PORT=3000
+  networks:
+   - apigw
+  ports:
+   - "80"
+  depends_on:
+   - config_db
+   - event_db
+   - mock
+   - auth_app
+
+ config_db:
+   image: repository.diacare-soft.ru/docker/mongo:4.2
+   container_name: "config_db-${CI_JOB_ID}"
+   environment:
+     - MONGO_DATA_DIR=/data/db
+     - MONGO_LOG_DIR=/dev/null
+   networks:
+     - apigw
+   ports:
+     - 27017
+   logging:
+     driver: none
+
+ event_db:
+   image: repository.diacare-soft.ru/docker/influxdb
+   container_name: "event_db-${CI_JOB_ID}"
+   networks:
+     - apigw
+   ports:
+     - 8086
+   environment:
+     - INFLUXDB_ADMIN_USER=admin
+     - INFLUXDB_ADMIN_PASSWORD=FqTfXq7e5d
+   logging:
+     driver: none
+
+ auth_app:
+  image: repository.diacare-soft.ru/docker/platform/auth:1.0.0
+  container_name: "auth-${CI_JOB_ID}"
+  environment:
+   - AUTH_ADMINPASSWORD=rootADMINpass
+   - AUTH_TOKENSECRET=xejzfoqlSZ
+   - AUTH_TTL_ACCESSTOKEN=60
+   - AUTH_TTL_REFRESHTOKEN=600
+   - AUTH_HTTP_HOST=0.0.0.0
+   - AUTH_HTTP_PORT=80
+   - AUTH_CONFIGDB_HOST=config_db
+   - AUTH_CONFIGDB_PORT=27017
+   - AUTH_CONFIGDB_DATABASE=auth
+   - AUTH_EVENTDB_HOST=event_db
+   - AUTH_EVENTDB_PORT=8086
+   - AUTH_EVENTDB_DATABASE=auth
+   - AUTH_EVENTDB_LOGIN=admin
+   - AUTH_EVENTDB_PASSWORD=FqTfXq7e5d
+   - AUTH_LOGGING_OUTPUT=STDOUT
+   - AUTH_LOGGING_LEVEL=INFO
+   - AUTH_SENTRY_DSN=https://fe0f930d1430483f9d308680c8e2d80b@sentry.nefrosovet.ru/34
+  networks:
+   - apigw
+  ports:
+   - 80
+  depends_on:
+   - config_db
+   - event_db
+
+ mock:
+  image: mock
+  container_name: "mock-${CI_JOB_ID}"
+  build:
+   context: ./mock
+   labels:
+    - "image.version=${CI_JOB_ID}"
+  networks:
+   - apigw
+  ports:
+   - "3000"
+
+ postman:
+  image: newman
+  container_name: "postman-${CI_JOB_ID}"
+  build:
+   context: .
+   labels:
+    - "image.version=${CI_JOB_ID}"
+  networks:
+   - apigw
+  depends_on:
+   - api
+   - proxy
+   - auth_app
+  command: run /storage/collection.json --color on --delay-request 1000 --global-var apigwHost=http://api --global-var proxyHost=http://proxy --global-var authHost=http://auth_app

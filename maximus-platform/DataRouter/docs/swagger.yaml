@@ -1,0 +1,1176 @@
+  swagger: '2.0'
+  info:
+    version: "1.1"
+    title: DataRouter API
+    description: |
+      #### RESTFUL DataRouter API
+  schemes:
+    - http
+  host: "datarouter.maximus.lan"
+  basePath: /
+
+  parameters:
+    limit:
+      name: limit
+      in: query
+      description: "Лимит выдачи"
+      type: integer
+      required: false
+
+    offset:
+      name: offset
+      in: query
+      description: "Шаг выдачи"
+      type: integer
+      required: false
+
+    clientID:
+      name: clientID
+      in: path
+      description: "Идентификатор клиента"
+      type: string
+      required: true
+      format: uuid
+
+    routeID:
+      name: routeID
+      in: path
+      description: "Идентификатор маршрута"
+      type: string
+      required: true
+      format: uuid
+
+    replyID:
+      name: replyID
+      in: path
+      description: "Идентификатор ответа"
+      type: string
+      required: true
+      format: uuid
+
+    eventID:
+      name: eventID
+      in: path
+      description: "Идентификатор события"
+      type: string
+      required: true
+      format: uuid
+
+    filter.username:
+      name: username
+      in: query
+      description: "Логин клиента"
+      type: string
+      required: false
+
+    filter.routeID:
+      name: routeID
+      in: query
+      description: "Идентификатор маршрута"
+      type: string
+      format: uuid
+      required: false
+
+    filter.transactionID:
+      name: transactionID
+      in: query
+      description: "Идентификатор транзакции"
+      type: string
+      format: uuid
+      required: false
+
+    filter.srcTopic:
+      name: srcTopic
+      in: query
+      description: "Канал источника"
+      type: string
+      required: false
+
+    filter.dstTopic:
+      name: dstTopic
+      in: query
+      description: "Канал назначения"
+      type: string
+      required: false
+
+    filter.replyID:
+      name: replyID
+      in: query
+      description: "Флаг ответа"
+      type: string
+      format: uuid
+      required: false
+
+  paths:
+    /status:
+      get:
+        operationId: statusView
+        tags:
+        - Status
+        summary: Статус инстанса
+        produces:
+        - application/json
+        consumes:
+        - application/json
+        responses:
+          200:
+            $ref: "#/responses/Base_response_200"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+    /clients:
+      get:
+        parameters:
+          - $ref: "#/parameters/limit"
+          - $ref: "#/parameters/offset"
+          - $ref: "#/parameters/filter.username"
+        operationId: clientCollection
+        tags:
+          - Clients
+        summary: Коллекция клиентов
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Client_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      post:
+        operationId: clientCreate
+        parameters:
+          - name: body
+            in: body
+            required: true
+            schema:
+              allOf:
+                - type: object
+                  properties:
+                    ID:
+                      type: string
+                      example: "db9564da-b3e8-458d-9fa5-b317eb395b99"
+                      description: "Идентификатор клиента"
+                      format: uuid
+                - $ref: "#/definitions/Client_object"
+                - type: object
+                  properties:
+                    password:
+                      type: string
+                      example: "xxxxxxx"
+                      description: "Пароль клиента"
+                      minLength: 1
+                    ttl:
+                     type: integer
+                     example: 10
+                     description: "Время жизни клиента в секундах."
+                  required:
+                    - username
+                    - password
+        tags:
+          - Clients
+        summary: Создание клиента
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Client_response_200"
+          400:
+            $ref: "#/responses/Client_response_400"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+
+    /clients/{clientID}:
+      parameters:
+       - $ref: "#/parameters/clientID"
+      get:
+        operationId: clientView
+        tags:
+          - Clients
+        summary: Информация о клиенте
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Client_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      patch:
+        operationId: clientPatch
+        parameters:
+          - name: body
+            in: body
+            required: true
+            schema:
+              allOf:
+                - $ref: "#/definitions/Client_object"
+                - type: object
+                  properties:
+                    password:
+                     type: string
+                     example: "xxxxxxxxxx"
+                     description: "Пароль клиента"
+                     minLength: 1
+                    ttl:
+                     type: integer
+                     example: 10
+                     description: "Время жизни клиента в секундах."
+                  required:
+                    - username
+        tags:
+          - Clients
+        summary:  Изменение клиента
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Client_response_200"
+          400:
+            $ref: "#/responses/Client_response_400"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      delete:
+        operationId: clientDelete
+        tags:
+          - Clients
+        summary:  Удаление клиента
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Base_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+
+    /clients/{clientID}/permissions:
+      parameters:
+        - $ref: "#/parameters/clientID"
+      get:
+        operationId: clientPermissionView
+        tags:
+          - Permissions
+        summary: Информация о правах клиента
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Permission_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      post:
+        operationId: clientPermissionCreate
+        parameters:
+          - name: body
+            in: body
+            required: false
+            schema:
+              allOf:
+                - $ref: "#/definitions/Permission_object"
+        tags:
+          - Permissions
+        summary:  Изменение прав клиента
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Permission_response_200"
+          400:
+            $ref: "#/responses/Permission_response_400"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+
+    /routes:
+      get:
+        operationId: routeCollection
+        parameters:
+          - $ref: "#/parameters/limit"
+          - $ref: "#/parameters/offset"
+        tags:
+          - Routes
+        summary: Коллекция маршрутов
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Route_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      post:
+        operationId: routeCreate
+        parameters:
+          - name: body
+            in: body
+            required: true
+            schema:
+              allOf:
+                - $ref: "#/definitions/Route_object"
+                - type: object
+                  required:
+                   - dst
+                   - src
+                   - replyID
+        tags:
+          - Routes
+        summary: Создание маршрута
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Route_response_200"
+          400:
+            $ref: "#/responses/Route_response_400"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+
+    /routes/{routeID}:
+      parameters:
+       - $ref: "#/parameters/routeID"
+      get:
+        operationId: routeView
+        tags:
+          - Routes
+        summary: Информация о маршруте
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Route_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      put:
+        operationId: routePut
+        parameters:
+          - name: body
+            in: body
+            required: false
+            schema:
+              allOf:
+                - $ref: "#/definitions/Route_object"
+                - type: object
+
+        tags:
+          - Routes
+        summary:  Изменение маршрута
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Route_response_200"
+          400:
+            $ref: "#/responses/Route_response_400"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      delete:
+        operationId: routeDelete
+        tags:
+          - Routes
+        summary:  Удаление маршрута
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Base_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+
+    /replies:
+      get:
+        operationId: replyCollection
+        parameters:
+          - $ref: "#/parameters/limit"
+          - $ref: "#/parameters/offset"
+        tags:
+          - Replies
+        summary: Коллекция шаблонов ответов
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Reply_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      post:
+        operationId: replyCreate
+        parameters:
+          - name: body
+            in: body
+            required: true
+            schema:
+              allOf:
+                - $ref: "#/definitions/Reply_object"
+                - type: object
+              required:
+                - username
+                - password
+
+        tags:
+          - Replies
+        summary: Создание шаблона ответа
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Reply_response_200"
+          400:
+            $ref: "#/responses/Reply_response_400"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+
+    /replies/{replyID}:
+      parameters:
+       - $ref: "#/parameters/replyID"
+      get:
+        operationId: replyView
+        tags:
+          - Replies
+        summary: Информация о шаблоне ответа
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Reply_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      put:
+        operationId: replyPut
+        parameters:
+          - name: body
+            in: body
+            required: true
+            schema:
+              allOf:
+                - $ref: "#/definitions/Reply_object"
+        tags:
+          - Replies
+        summary:  Изменение шаблона ответа
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Reply_response_200"
+          400:
+            $ref: "#/responses/Reply_response_400"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+      delete:
+        operationId: replyDelete
+        tags:
+          - Replies
+        summary:  Удаление шаблона ответа
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Base_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+
+    /events:
+      get:
+        parameters:
+          - $ref: "#/parameters/limit"
+          - $ref: "#/parameters/offset"
+          - $ref: "#/parameters/filter.routeID"
+          - $ref: "#/parameters/filter.transactionID"
+          - $ref: "#/parameters/filter.srcTopic"
+          - $ref: "#/parameters/filter.dstTopic"
+          - $ref: "#/parameters/filter.replyID"
+        operationId: eventCollection
+        tags:
+          - Events
+        summary: Коллекция событий
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Event_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+
+    /events/{eventID}:
+      parameters:
+       - $ref: "#/parameters/eventID"
+      get:
+        operationId: eventView
+        tags:
+          - Events
+        summary: Информация о событии
+        produces:
+          - application/json
+        consumes:
+          - application/json
+        responses:
+          200:
+            $ref: "#/responses/Event_response_200"
+          404:
+            $ref: "#/responses/Base_response_404"
+          405:
+            $ref: "#/responses/Base_response_405"
+          500:
+            $ref: "#/responses/Base_response_500"
+
+  responses:
+    Base_response_200:
+      description: "Success"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Success_data"
+          - type: object
+            properties:
+              data:
+                example: null
+
+    Base_response_404:
+      description: "Not found"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Error_404_data"
+
+    Base_response_405:
+      description: "Invalid Method"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Error_405_data"
+
+    Base_response_500:
+      description: "Internal sersver error"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Error_500_data"
+
+    Client_response_200:
+      description: "Коллекция клиентов"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Success_data"
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "db9564da-b3e8-458d-9fa5-b317eb395b99"
+                        description: "Идентификатор клиента"
+                        format: uuid
+                  - $ref: "#/definitions/Client_object"
+                  - type: object
+                    properties:
+                      created:
+                        type: string
+                        example: "2018-05-22T13:27:51+00:00"
+                        description: "ISO Дата-время создания клиента"
+                        format: date-time
+                      expired:
+                        type: string
+                        example: "2018-05-22T14:27:51+00:00"
+                        description: "ISO Дата-время протухания клиента"
+                        format: date-time
+                        x-nullable: true
+                      ttl:
+                       type: integer
+                       example: 10
+                       description: "Время жизни клиента в секундах."
+                       x-nullable: true
+                    required:
+                     - ID
+                     - created
+                     - expired
+                     - username
+                     - ttl
+
+    Client_response_400:
+      description: "Validation error"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Error_400_data"
+          - type: object
+          - properties:
+              errors:
+                type: object
+                properties:
+                  validation:
+                    type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "string"
+                        enum:
+                          - "string"
+                          - "format"
+                          - "unique"
+                      username:
+                        type: string
+                        example: "string"
+                        enum:
+                          - "string"
+                          - "required"
+                      password:
+                        type: string
+                        example: "string"
+                        enum:
+                          - "string"
+                          - "required"
+                      ttl:
+                        type: string
+                        example: "int"
+                        enum:
+                          - "int"
+
+    Permission_response_200:
+      description: "Коллекция прав клиентов"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Success_data"
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/definitions/Permission_object"
+                    - type: object
+                      properties:
+                        created:
+                          type: string
+                          description: "Дата-время создания пермишна"
+                          example: "2019-03-08T08:06:54Z"
+                          format: date-time
+
+    Permission_response_400:
+      description: "Validation error"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Error_400_data"
+          - type: object
+          - properties:
+              errors:
+                type: object
+                properties:
+                  validation:
+                    type: object
+                    properties:
+                      publish:
+                        type: string
+                        example: "array"
+                        enum:
+                          - "array"
+                      subscribe:
+                        type: string
+                        example: "array"
+                        enum:
+                          - "array"
+
+    Route_response_200:
+      description: "Коллекция маршрутов"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Success_data"
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        ID:
+                          type: string
+                          example: "2f87bb78-3919-4ff2-9f62-afca839b0c2c"
+                          description: "Идентификатор маршрута"
+                        created:
+                          type: string
+                          description: "Дата-время создания роута"
+                          example: "2019-03-08T08:06:54Z"
+                          format: date-time
+                    - $ref: "#/definitions/Route_object"
+
+
+    Route_response_400:
+      description: "Validation error"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Error_400_data"
+          - type: object
+          - properties:
+              errors:
+                type: object
+                properties:
+                  validation:
+                    type: object
+                    properties:
+                      src:
+                        type: string
+                        example: "object"
+                        enum:
+                          - "object"
+                          - "required"
+                      src.topic:
+                        type: string
+                        example: "object"
+                        enum:
+                          - "object"
+                          - "required"
+                      src.payload:
+                        type: string
+                        example: "object"
+                        enum:
+                          - "object"
+                      dst:
+                        type: string
+                        example: "object"
+                        enum:
+                          - "object"
+                          - "required"
+                      dst.topic:
+                        type: string
+                        example: "object"
+                        enum:
+                          - "object"
+                          - "required"
+                      dst.qos:
+                        type: string
+                        example: "int"
+                        enum:
+                          - "int"
+                          - "required"
+                      replyID:
+                        type: string
+                        example: "string"
+                        enum:
+                          - "string"
+                          - "not_found"
+
+    Reply_response_200:
+      description: "Коллекция шаблонов ответов"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Success_data"
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        ID:
+                          type: string
+                          example: "2f87bb78-3919-4ff2-9f62-afca839b0c2c"
+                          description: "Идентификатор шаблона ответа"
+                        created:
+                          type: string
+                          description: "Дата-время создания реплая"
+                          example: "2019-03-08T08:06:54Z"
+                          format: date-time
+                    - $ref: "#/definitions/Reply_object"
+
+    Reply_response_400:
+      description: "Validation error"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Error_400_data"
+          - type: object
+          - properties:
+              errors:
+                type: object
+                properties:
+                  validation:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                        example: "string"
+                        enum:
+                          - "string"
+                      regex:
+                        type: string
+                        example: "string"
+                        enum:
+                          - "string"
+                          - "required"
+                      replace:
+                        type: string
+                        example: "string"
+                        enum:
+                          - "string"
+                          - "required"
+
+    Event_response_200:
+      description: "Коллекция событий"
+      schema:
+        allOf:
+          - $ref: "#/definitions/Success_data"
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                       ID:
+                        type: string
+                        example: "123"
+                        description: "Идентификатор события"
+                    - $ref: "#/definitions/Event_object"
+
+  definitions:
+    Base_data:
+      description: Возвращает статус ответа
+      type: object
+      properties:
+        version:
+          type: string
+          description: "Версия ответа сервиса"
+          example: "2.0.0"
+      required:
+        - version
+
+    Success_data:
+      description: Все хорошо
+      allOf:
+        - $ref: "#/definitions/Base_data"
+        - type: object
+          title: Success_data
+          properties:
+            message:
+              type: string
+              description: "сообщение ответа"
+              example: "SUCCESS"
+            errors:
+              type: array
+              items: {}
+              example: null
+          required:
+            - message
+            - errors
+
+    Error_data:
+      description: Все плохо
+      allOf:
+        - $ref: "#/definitions/Base_data"
+        - type: object
+          title: Error_data
+          properties:
+            data:
+              type: array
+              items: {}
+              example: null
+
+    Client_400_data:
+      allOf:
+        - $ref: "#/definitions/Error_data"
+        - type: object
+          title: Client_Error_400_data
+          properties:
+            message:
+              type: string
+              example: "Validation error"
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                      example: "userlogin"
+                    password:
+                      type: string
+                      example: "userpassword"
+
+    Error_400_data:
+      allOf:
+        - $ref: "#/definitions/Error_data"
+        - type: object
+          title: Error_Error_400_data
+          properties:
+            message:
+              type: string
+              example: "Validation error"
+            errors:
+              type: object
+              properties:
+                validation:
+                  type: object
+              required:
+                - validation
+          required:
+            - message
+            - errors
+
+
+    Error_404_data:
+      allOf:
+        - $ref: "#/definitions/Error_data"
+        - type: object
+          title: Error_Error_404_data
+          properties:
+            message:
+              type: string
+              description: "сообщение ответа"
+              example: "${ITEM} Not found"
+            errors:
+              example: null
+
+    Error_405_data:
+      allOf:
+        - $ref: "#/definitions/Error_data"
+        - type: object
+          title: Error_Error_405_data
+          properties:
+            message:
+              type: string
+              description: "сообщение ответа"
+              example: "Method ${METHOD} not allowed"
+            errors:
+              example: null
+
+    Error_500_data:
+      allOf:
+        - $ref: "#/definitions/Error_data"
+        - type: object
+          title: Error_Error_500_data
+          properties:
+            message:
+              type: string
+              description: "сообщение ответа"
+              example: "Internal server error"
+            errors:
+              example: null
+
+    Client_object:
+      title: Client_object
+      allOf:
+        - type: object
+          properties:
+            username:
+              type: string
+              example: "testClient"
+              description: "Логин клиента"
+            password:
+              type: string
+              example: "xxxxxxx"
+              description: "Пароль клиента"
+
+
+    Permission_object:
+      title: Permission_object
+      properties:
+        publish:
+          type: array
+          items:
+           type: string
+           example: "services/test/OUT"
+           description: "ACL рассылок"
+        subscribe:
+          type: array
+          items:
+           type: string
+           example: "services/+/IN"
+           description: "ACL подписок"
+
+    Route_object:
+      title: Route_object
+      properties:
+        src:
+          type: object
+          properties:
+            topic:
+              type: object
+              description: "jsonLogic style описание условия"
+              example: {"and":[{"==":[{"var":"name"},"services/index/OUT"]},{">":[{"var":"qos"},0]}]}
+            payload:
+              type: object
+              description: "jsonLogic style описание условия"
+              example: {"and":[{"==":[{"var":"param1"},"value"]},{">":[{"var":"param2"},100]}]}
+          required:
+            - topic
+        dst:
+          type: array
+          items:
+            type: object
+            properties:
+              topic:
+                type: string
+                example: "services/serviceB/OUT"
+                description: "Канал назначения"
+              qos:
+                type: integer
+                example: 0
+                description: "QOS"
+                enum:
+                 - 0
+                 - 1
+                 - 2
+            required:
+              - topic
+              - qos
+        replyID:
+          type: string
+          example: "1801dc8f-4d57-4e86-afb8-951d009ca7d8"
+          description: "Идентификатор шаблона ответа"
+          format: uuid
+          x-nullable: true
+      required:
+           - src
+           - dst
+
+    Reply_object:
+      title: Reply_object
+      properties:
+        description:
+          type: string
+          description: "Описание шаблона"
+          example: "Переправлять ответы на /IN"
+        regex:
+          type: string
+          description: "Regex шаблона"
+          example: "services/(.*)/OUT"
+        replace:
+          type: string
+          description: "Regex шаблона"
+          example: "services/$1/IN"
+      required:
+        - regex
+        - replace
+
+    Event_object:
+      title: Event_object
+      properties:
+        date:
+          type: string
+          example: "2005-08-09T18:31:42+03:30"
+          description: "Дата-время события"
+          format: date-time
+        routeID:
+          type: string
+          example: "09a475d5-473a-4c20-8feb-91b34dcd9b38"
+          description: "Идентификатор маршрута"
+          format: uuid
+        srcTopic:
+          type: string
+          example: "topicA"
+          description: "Канал источника"
+        dstTopic:
+          type: string
+          example: "topicB"
+          description: "Канал назначения"
+        transactionID:
+          type: string
+          example: "f4cda951-8785-40ce-bb47-62a7ccea2c03"
+          description: "Идентификатор транзакции"
+          format: uuid
+        replyID:
+         type: string
+         description: "Идентификатор ответа"
+         example: "p9gdv123-6543-25lo-tt45-54f7hhre5d32"
+         format: uuid
+      required:
+        - replyID
+

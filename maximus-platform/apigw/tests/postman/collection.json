@@ -1,0 +1,1670 @@
+{
+	"info": {
+		"_postman_id": "952db6fc-95fc-4805-8628-25fb8841eb5f",
+		"name": "APIGW",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01 Получение коллекции пациентов: ERROR 404 not found",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5f3155b4-baa5-44a7-8f38-7829e5ab8833",
+						"exec": [
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 404);",
+							"    pm.expect(pm.response).to.have.property('status', 'Not Found');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('text/plain; charset=utf-8');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{proxyHost}}/{{policyResource}}/{{policyPath}}",
+					"host": [
+						"{{proxyHost}}"
+					],
+					"path": [
+						"{{policyResource}}",
+						"{{policyPath}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "02 Создание политики: ERROR 405 invalid method",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							"pm.environment.set(\"policyDescription\", \"Allow anonymous GET for patients\");",
+							"pm.environment.set(\"policyResource\", \"test\");",
+							"pm.environment.set(\"policyMethod\", \"GET\");",
+							"pm.environment.set(\"policyPath\", \"patients\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 405);",
+							"    pm.expect(pm.response).to.have.property('status', 'Method Not Allowed');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"Method PUT not allowed\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": 1,\n    \"resource\": 1,\n    \"method\": 1,\n    \"path\": 1,\n    \"roles\": 1\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 Создание политики: ERROR 400 attribute type",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 400);",
+							"    pm.expect(pm.response).to.have.property('status', 'Bad Request');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Error schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData.errors, glFn.getEnvSchema(\"errorSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"Validation error\");",
+							"});",
+							"",
+							"pm.test(\"Validation data is correct\", function () {",
+							"    pm.expect(jsonData.errors.validation).to.have.property(\"description\", \"string\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": 1,\n    \"resource\": 1,\n    \"method\": 1,\n    \"path\": 1,\n    \"roles\": 1\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "04 Создание политики: ERROR 400 attribute require",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 400);",
+							"    pm.expect(pm.response).to.have.property('status', 'Bad Request');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Error schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData.errors, glFn.getEnvSchema(\"errorSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"Validation error\");",
+							"});",
+							"",
+							"pm.test(\"Validation data is correct\", function () {",
+							"    pm.expect(jsonData.errors.validation).to.have.property(\"description\", \"required\");",
+							"    pm.expect(jsonData.errors.validation).to.have.property(\"resource\", \"required\");",
+							"    pm.expect(jsonData.errors.validation).to.have.property(\"method\", \"required\")",
+							"    pm.expect(jsonData.errors.validation).to.have.property(\"path\", \"required\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"foo\": \"bar\"\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "05 Создание политики: SUCCESS 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							"pm.environment.set(\"policyDescription\", \"Allow anonymous GET for patients\");",
+							"pm.environment.set(\"policyResource\", \"test\");",
+							"pm.environment.set(\"policyMethod\", \"GET\");",
+							"pm.environment.set(\"policyPath\", \"patients\");",
+							"pm.environment.set(\"policyQuerystringParams\", \"limit\");",
+							"pm.environment.set(\"policyHeadersToPass\", \"User-Agent\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+							"});",
+							"",
+							"pm.test('Entity schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"policySchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Entity data is correct\", function () {",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"description\", pm.environment.get(\"policyDescription\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"method\", pm.environment.get(\"policyMethod\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"resource\", pm.environment.get(\"policyResource\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"path\", pm.environment.get(\"policyPath\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"backendPath\", pm.environment.get(\"policyPath\"));",
+							"    pm.expect(jsonData.data[0].querystring_params).to.be.an('array').that.include(pm.environment.get(\"policyQuerystringParams\"));",
+							"    pm.expect(jsonData.data[0].headers_to_pass).to.be.an('array').that.include(pm.environment.get(\"policyHeadersToPass\"));",
+							"});",
+							"",
+							"pm.environment.set(\"policyID\", jsonData.data[0].ID);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": \"{{policyDescription}}\",\n    \"resource\": \"{{policyResource}}\",\n    \"method\": \"{{policyMethod}}\",\n    \"path\": \"{{policyPath}}\",\n    \"backendPath\":  \"{{policyPath}}\",\n    \"querystring_params\": [\"{{policyQuerystringParams}}\"],\n    \"headers_to_pass\": [\"{{policyHeadersToPass}}\"]\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "06 Информация о политике: ERROR 404 not found",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 404);",
+							"    pm.expect(pm.response).to.have.property('status', 'Not Found');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"Entity not found\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies/{{randomID}}",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies",
+						"{{randomID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "07 Информация о политике: SUCCESS 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+							"});",
+							"",
+							"pm.test('Entity schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"policySchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Entity data is correct\", function () {",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"description\", pm.environment.get(\"policyDescription\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"method\", pm.environment.get(\"policyMethod\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"resource\", pm.environment.get(\"policyResource\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"path\", pm.environment.get(\"policyPath\"));",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies/{{policyID}}",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies",
+						"{{policyID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08 Создание политики: ERROR 400 unique",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 400);",
+							"    pm.expect(pm.response).to.have.property('status', 'Bad Request');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"Policy with this resource, method and path already existed\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": \"{{policyDescription}}\",\n    \"resource\": \"{{policyResource}}\",\n    \"method\": \"{{policyMethod}}\",\n    \"path\": \"{{policyPath}}\",\n    \"backendPath\":  \"{{policyPath}}\"\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "09 Получение коллекции пациентов: SUCCESS 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5f3155b4-baa5-44a7-8f38-7829e5ab8833",
+						"exec": [
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{proxyHost}}/{{policyResource}}/{{policyPath}}",
+					"host": [
+						"{{proxyHost}}"
+					],
+					"path": [
+						"{{policyResource}}",
+						"{{policyPath}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "10 Информация о политике: ERROR invalid method",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							"pm.environment.set(\"policyDescription\", \"Allow anonymous GET for patients\");",
+							"pm.environment.set(\"policyResource\", \"test\");",
+							"pm.environment.set(\"policyMethod\", \"GET\");",
+							"pm.environment.set(\"policyPath\", \"patients\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 405);",
+							"    pm.expect(pm.response).to.have.property('status', 'Method Not Allowed');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"Method POST not allowed\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": 1,\n    \"resource\": 1,\n    \"method\": 1,\n    \"path\": 1,\n    \"roles\": 1\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies/{{policyID}}",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies",
+						"{{policyID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "11 Изменение политики: ERROR 404 not found",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 404);",
+							"    pm.expect(pm.response).to.have.property('status', 'Not Found');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"Entity not found\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": \"1\",\n    \"resource\": \"1\",\n    \"method\": \"GET\",\n    \"path\": \"1\"\n\t\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies/{{randomID}}",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies",
+						"{{randomID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "12 Изменение политики: ERROR 400 attribute type",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 400);",
+							"    pm.expect(pm.response).to.have.property('status', 'Bad Request');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Error schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData.errors, glFn.getEnvSchema(\"errorSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"Validation error\");",
+							"});",
+							"",
+							"pm.test(\"Validation data is correct\", function () {",
+							"    pm.expect(jsonData.errors.validation).to.have.property(\"description\", \"string\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"description\": 1,\n    \"resource\": 1,\n    \"method\": 1,\n    \"path\": 1,\n    \"roles\": 1\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies/{{policyID}}",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies",
+						"{{policyID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "13 Изменение политики: SUCCESS 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							"pm.environment.set(\"policyDescription\", \"Allow EMPLOYEE GET for patients\");",
+							"pm.environment.set(\"policyResource\", \"test\");",
+							"pm.environment.set(\"policyMethod\", \"GET\");",
+							"pm.environment.set(\"policyPath\", \"patients\");",
+							"pm.environment.set(\"policyRole\", \"EMPLOYEE\");",
+							"pm.environment.set(\"policyKeyCache\", 900);",
+							"pm.environment.set(\"policyCache\", true);",
+							"pm.environment.set(\"policyQuerystringParams\", \"offset\");",
+							"pm.environment.set(\"policyHeadersToPass\", \"Content-Type\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+							"});",
+							"",
+							"pm.test('Entity schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"policySchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Entity data is correct\", function () {",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"description\", pm.environment.get(\"policyDescription\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"method\", pm.environment.get(\"policyMethod\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"resource\", pm.environment.get(\"policyResource\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"path\", pm.environment.get(\"policyPath\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"backendPath\", pm.environment.get(\"policyPath\"));",
+							"    pm.expect(jsonData.data[0].roles).to.be.an('array').that.include(pm.variables.get(\"policyRole\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"key_cache\", pm.environment.get(\"policyKeyCache\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"cache\", pm.environment.get(\"policyCache\"));",
+							"    pm.expect(jsonData.data[0].querystring_params).to.be.an('array').that.include(pm.environment.get(\"policyQuerystringParams\"));",
+							"    pm.expect(jsonData.data[0].headers_to_pass).to.be.an('array').that.include(pm.environment.get(\"policyHeadersToPass\"));",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"description\": \"{{policyDescription}}\",\n    \"resource\": \"{{policyResource}}\",\n    \"method\": \"{{policyMethod}}\",\n    \"path\": \"{{policyPath}}\",\n    \"backendPath\": \"{{policyPath}}\",\n    \"roles\": [\"{{policyRole}}\"],\n    \"key_cache\": {{policyKeyCache}},\n    \"cache\": {{policyCache}},\n    \"querystring_params\": [\"{{policyQuerystringParams}}\"],\n    \"headers_to_pass\": [\"{{policyHeadersToPass}}\"]\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies/{{policyID}}",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies",
+						"{{policyID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "14 Получение коллекции пациентов: ERROR 401 unauthorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5f3155b4-baa5-44a7-8f38-7829e5ab8833",
+						"exec": [
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 401);",
+							"    pm.expect(pm.response).to.have.property('status', 'Unauthorized');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{proxyHost}}/{{policyResource}}/{{policyPath}}",
+					"host": [
+						"{{proxyHost}}"
+					],
+					"path": [
+						"{{policyResource}}",
+						"{{policyPath}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "15 Аутентификация админа SUCCESS 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3a153f97-b697-43c2-8a02-89128f8160a2",
+						"exec": [
+							"pm.environment.set(\"authLogin\", \"admin\");",
+							"pm.environment.set(\"authPassword\", \"rootADMINpass\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "1f24c18c-2e20-4c4b-a7b0-48931a8b2930",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    pm.expect(pm.response).to.have.header('Content-type', 'application/json');",
+							"});",
+							"",
+							"pm.environment.set(\"accessToken\", jsonData.data[0].accessToken);",
+							"pm.environment.set(\"refreshToken\", jsonData.data[0].refreshToken);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"login\": \"{{authLogin}}\",\n\t\"password\": \"{{authPassword}}\"\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{authHost}}/user",
+					"host": [
+						"{{authHost}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Аутентификация пользователя по логин-паролю SUCCESS",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"login\": \"{{authLogin}}\",\n\t\"password\": \"{{authPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{authHost}}/user",
+							"host": [
+								"{{authHost}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 31 Oct 2018 12:33:25 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "99"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"version\": \"develop.b81162-baab17e8\",\n    \"data\": null,\n    \"errors\": null,\n    \"message\": \"Authentication failure\"\n}"
+				}
+			]
+		},
+		{
+			"name": "16 Получение коллекции пациентов: ERROR 401 unauthorized",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5f3155b4-baa5-44a7-8f38-7829e5ab8833",
+						"exec": [
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 401);",
+							"    pm.expect(pm.response).to.have.property('status', 'Unauthorized');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{accessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{proxyHost}}/{{policyResource}}/{{policyPath}}",
+					"host": [
+						"{{proxyHost}}"
+					],
+					"path": [
+						"{{policyResource}}",
+						"{{policyPath}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "17 Добавление пользователя в роль: SUCCESS 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a4004bc9-34f3-4eda-b52e-3921c3805f43",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    pm.expect(pm.response).to.have.header('Content-type', 'application/json');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{authHost}}/roles/EMPLOYEE/users/admin",
+					"host": [
+						"{{authHost}}"
+					],
+					"path": [
+						"roles",
+						"EMPLOYEE",
+						"users",
+						"admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "18 Аутентификация админа SUCCESS 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3a153f97-b697-43c2-8a02-89128f8160a2",
+						"exec": [
+							"pm.environment.set(\"authLogin\", \"admin\");",
+							"pm.environment.set(\"authPassword\", \"rootADMINpass\");",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "1f24c18c-2e20-4c4b-a7b0-48931a8b2930",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    pm.expect(pm.response).to.have.header('Content-type', 'application/json');",
+							"});",
+							"",
+							"pm.environment.set(\"accessToken\", jsonData.data[0].accessToken);",
+							"pm.environment.set(\"refreshToken\", jsonData.data[0].refreshToken);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"login\": \"{{authLogin}}\",\n\t\"password\": \"{{authPassword}}\"\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{authHost}}/user",
+					"host": [
+						"{{authHost}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Аутентификация пользователя по логин-паролю SUCCESS",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"login\": \"{{authLogin}}\",\n\t\"password\": \"{{authPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{authHost}}/user",
+							"host": [
+								"{{authHost}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Server",
+							"value": "nginx"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 31 Oct 2018 12:33:25 GMT"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Content-Length",
+							"value": "99"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"version\": \"develop.b81162-baab17e8\",\n    \"data\": null,\n    \"errors\": null,\n    \"message\": \"Authentication failure\"\n}"
+				}
+			]
+		},
+		{
+			"name": "19 Получение коллекции пациентов: SUCCESS 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5f3155b4-baa5-44a7-8f38-7829e5ab8833",
+						"exec": [
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{accessToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{proxyHost}}/{{policyResource}}/{{policyPath}}",
+					"host": [
+						"{{proxyHost}}"
+					],
+					"path": [
+						"{{policyResource}}",
+						"{{policyPath}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "20 Удаление авторизации из политики: SUCCESS 200",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a08bb017-45c8-4e3e-aac4-83b057b02307",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f4d80a75-315a-49c0-8723-273ff60a8410",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+							"});",
+							"",
+							"pm.test('Entity schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"policySchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Entity data is correct\", function () {",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"description\", pm.environment.get(\"policyDescription\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"method\", pm.environment.get(\"policyMethod\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"resource\", pm.environment.get(\"policyResource\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"path\", pm.environment.get(\"policyPath\"));",
+							"    pm.expect(jsonData.data[0]).to.have.property(\"cache\", pm.environment.get(\"policyCache\"));",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"roles\": []\n}",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies/{{policyID}}",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies",
+						"{{policyID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "21 Получение коллекции пациентов: SUCCESS 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5f3155b4-baa5-44a7-8f38-7829e5ab8833",
+						"exec": [
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{proxyHost}}/{{policyResource}}/{{policyPath}}",
+					"host": [
+						"{{proxyHost}}"
+					],
+					"path": [
+						"{{policyResource}}",
+						"{{policyPath}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "22 Коллекция политик: SUCCESS 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d0c83747-9f48-451c-9ff3-134f5d6de2e1",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+							"});",
+							"",
+							"pm.test('Entity schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData.data[0], glFn.getEnvSchema(\"policySchema\"))).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{apigwHost}}/policies",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "23 Удаление политики: SUCCESS 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "daef066a-4959-4c26-8417-f88d96668e93",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('application/json; charset=utf-8');",
+							"});",
+							"",
+							"pm.test('Base schema is valid', function() {",
+							"  pm.expect(tv4.validate(jsonData, glFn.getEnvSchema(\"baseSchema\"))).to.be.true;",
+							"});",
+							"",
+							"pm.test('Message data is valid', function() {",
+							"  pm.expect(jsonData).to.have.property(\"message\", \"SUCCESS\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {}
+				},
+				"url": {
+					"raw": "{{apigwHost}}/policies/{{policyID}}",
+					"host": [
+						"{{apigwHost}}"
+					],
+					"path": [
+						"policies",
+						"{{policyID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "24 Получение коллекции пациентов: ERROR 404 not found",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5f3155b4-baa5-44a7-8f38-7829e5ab8833",
+						"exec": [
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 404);",
+							"    pm.expect(pm.response).to.have.property('status', 'Not Found');",
+							"    contentType = pm.response.headers.get('Content-type').toLowerCase();",
+							"    pm.expect(contentType).to.equal('text/plain; charset=utf-8');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{proxyHost}}/{{policyResource}}/{{policyPath}}",
+					"host": [
+						"{{proxyHost}}"
+					],
+					"path": [
+						"{{policyResource}}",
+						"{{policyPath}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "25 Удаление пользователя из роли: SUCCESS 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a4004bc9-34f3-4eda-b52e-3921c3805f43",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody)",
+							"",
+							"pm.test(\"Success response is correct\", function () {",
+							"    pm.expect(pm.response).to.have.property('code', 200);",
+							"    pm.expect(pm.response).to.have.property('status', 'OK');",
+							"    pm.expect(pm.response).to.have.header('Content-type', 'application/json');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{authHost}}/roles/EMPLOYEE/users/admin",
+					"host": [
+						"{{authHost}}"
+					],
+					"path": [
+						"roles",
+						"EMPLOYEE",
+						"users",
+						"admin"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "0e53073e-dec7-421c-8f94-e82cc0188fa3",
+				"type": "text/javascript",
+				"exec": [
+					"var uuid = require('uuid');",
+					"pm.environment.set('randomID', uuid.v4());",
+					"",
+					"glFn = {",
+					"    getEnvSchema: function(name) {",
+					"        return JSON.parse(pm.variables.get(name));",
+					"}",
+					"}",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "aed1e126-3edd-4bc6-bb84-ea4c1c807aa7",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "5f0e0809-e43c-4866-bed9-84fe91684ad2",
+			"key": "baseSchema",
+			"value": "{\"type\":\"object\",\"properties\":{\"version\":{\"type\":\"string\"},\"errors\":{\"type\":[\"object\",\"array\",\"null\"]},\"data\":{\"type\":[\"array\",\"null\"]}},\"required\":[\"version\",\"errors\",\"data\"]}",
+			"type": "string"
+		},
+		{
+			"id": "637ba37d-6cb4-40b9-9d0d-f9f8fb419239",
+			"key": "errorSchema",
+			"value": "{\"type\":\"object\",\"properties\":{\"validation\":{\"type\":\"object\"}}}",
+			"type": "string"
+		},
+		{
+			"id": "412fdffc-6c24-4d31-aec9-bbb0df2fc149",
+			"key": "policySchema",
+			"value": "{\"type\":\"object\",\"properties\":{\"ID\":{\"type\":\"string\"},\"description\":{\"type\":\"string\"},\"resource\":{\"type\":\"string\"},\"method\":{\"type\":\"string\"},\"path\":{\"type\":\"string\"},\"roles\":{\"type\":[\"array\",\"null\"]}},\"required\":[\"ID\",\"description\",\"resource\",\"method\",\"path\",\"roles\"]}",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

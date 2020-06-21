@@ -1,0 +1,50 @@
+version: '3.7'
+
+services:
+  mysqldb:
+    image: mysql
+    container_name: api-video_mysqldb
+    environment:
+      MYSQL_DATABASE: api-video
+      MYSQL_USER: api-video
+      MYSQL_PASSWORD: api-video
+      MYSQL_ROOT_PASSWORD: secret
+    networks:
+      - diacare
+    volumes:
+      - 'mysql:/data/db'
+
+  api-video:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        _path: cmd/api-video
+    container_name: api-video_server
+    environment:
+      - API-VIDEO_LOGGING_OUTPUT=STDOUT
+      - API-VIDEO_LOGGING_FORMAT=TEXT
+      - API-VIDEO_LOGGING_LEVEL=DEBUG
+      - API-VIDEO_HTTP_PORT=80
+      - API-VIDEO_HTTP_HOST=0.0.0.0
+      - API-VIDEO_SENTRYDSN=https://28a633f2d2fd48599bf41716d1426e7f@sentry.diacare-soft.ru/34
+      - API-VIDEO_DB_LOGIN=api-video
+      - API-VIDEO_DB_PASSWORD=api-video
+      - API-VIDEO_DB_DATABASE=api-video
+      - API-VIDEO_DB_APP_NAME=api-video
+      - API-VIDEO_DB_HOST=api-video_mysqldb
+      - API-VIDEO_DB_PORT=3306
+    networks:
+      - diacare
+    ports:
+      - 8081:80
+    depends_on:
+      - mysqldb
+    tty: true
+
+networks:
+  diacare:
+    external: true
+
+volumes:
+  mysql:

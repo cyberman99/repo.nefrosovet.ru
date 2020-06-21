@@ -1,0 +1,27 @@
+FROM golang:1.13-alpine
+
+
+ENV GOPRIVATE=repo.nefrosovet.ru
+ENV GO111MODULE=off
+ENV GOPATH=/go \
+	PATH="/go/bin:$PATH"
+
+RUN apk add --no-cache --update \
+	git gcc musl-dev
+
+
+# Copy the local package files to the container's workspace. Add to GOPATH
+ADD . /go/src/repo.nefrosovet.ru/maximus-platform/apigw
+
+WORKDIR /go/src/repo.nefrosovet.ru/maximus-platform/apigw
+
+# Build
+RUN go install repo.nefrosovet.ru/maximus-platform/apigw/cmd/api
+RUN go install repo.nefrosovet.ru/maximus-platform/apigw/cmd/gw
+
+# Run the gw command by default when the container starts.
+CMD /go/bin/gw
+
+# Service listens on port 8383 (API) and 8384 (gateway).
+EXPOSE 8383
+EXPOSE 8384

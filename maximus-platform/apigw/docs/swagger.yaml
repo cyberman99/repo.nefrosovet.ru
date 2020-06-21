@@ -1,0 +1,461 @@
+openapi: '3.0.0'
+info:
+  version: "1.0.0"
+  title: ApiGW API
+  description: RESTFUL API GATEWAY API
+  contact:
+    name: Diacare-Soft API Support
+    url: http://diacare-soft.ru
+    email: support@diacare-soft.ru
+
+tags:
+  - name: Policies
+
+servers:
+  - url: "apigw.maximus.lan"
+paths:
+  /policies:
+    get:
+      tags:
+        - Policies
+      summary: Коллекция политик
+      operationId: policyCollection
+      responses:
+        200:
+          $ref: "#/components/responses/Policy_response_200"
+        405:
+          $ref: "#/components/responses/Base_response_405"
+        500:
+          $ref: "#/components/responses/Base_response_500"
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Policy_object_with_id"
+      tags:
+        - Policies
+      summary: Создание политики
+      operationId: policyCreate
+      responses:
+        200:
+          $ref: "#/components/responses/Policy_response_200"
+        400:
+          $ref: "#/components/responses/Base_response_400"
+        405:
+          $ref: "#/components/responses/Base_response_405"
+        500:
+          $ref: "#/components/responses/Base_response_500"
+
+  /policies/{policyID}:
+    parameters:
+      - $ref: "#/components/parameters/policyID"
+    get:
+      tags:
+        - Policies
+      summary: Информация о политике
+      operationId: policyView
+      responses:
+        200:
+          $ref: "#/components/responses/Policy_response_200"
+        404:
+          $ref: "#/components/responses/Base_response_404"
+        405:
+          $ref: "#/components/responses/Base_response_405"
+        500:
+          $ref: "#/components/responses/Base_response_500"
+    patch:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Policy_object_patch"
+      tags:
+        - Policies
+      summary:  Изменение политики
+      operationId: policyPatch
+      responses:
+        200:
+          $ref: "#/components/responses/Policy_response_200"
+        400:
+          $ref: "#/components/responses/Base_response_400"
+        404:
+          $ref: "#/components/responses/Base_response_404"
+        405:
+          $ref: "#/components/responses/Base_response_405"
+        500:
+          $ref: "#/components/responses/Base_response_500"
+    delete:
+      tags:
+        - Policies
+      summary:  Удаление политики
+      operationId: policyDelete
+      responses:
+        200:
+          $ref: "#/components/responses/Base_response_200"
+        404:
+          $ref: "#/components/responses/Base_response_404"
+        405:
+          $ref: "#/components/responses/Base_response_405"
+        500:
+          $ref: "#/components/responses/Base_response_500"
+components:
+  responses:
+    Base_response_400:
+      description: "Коллекция авторизации"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_400_data"
+              - type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Authentication failure"
+                  errors:
+                    type: object
+                    properties:
+                      validation:
+                        type: object
+                      core:
+                        type: string
+                      json:
+                        type: string
+                required:
+                  - message
+                  - errors
+
+    Base_response_401:
+      description: "Access denied"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_401_data"
+
+    Base_response_404:
+      description: "Not found"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_404_data"
+
+    Base_response_405:
+      description: "Invalid Method"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_405_data"
+
+    Base_response_500:
+      description: "Internal server error"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Error_500_data"
+
+    Base_response_200:
+      description: "SUCCESS"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Success_data"
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items: {}
+                required:
+                  - data
+
+
+    Policy_response_200:
+      description: "Объект политики"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Success_data"
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Policy_object_with_id"
+                required:
+                  - data
+
+  schemas:
+    Base_data:
+      description: Возвращает статус ответа
+      type: object
+      properties:
+        version:
+          type: string
+          description: "Версия ответа сервиса"
+          example: "2.0.0"
+      required:
+        - version
+
+    Success_data:
+      description: Все хорошо
+      allOf:
+        - $ref: "#/components/schemas/Base_data"
+        - type: object
+          title: Success_data
+          properties:
+            message:
+              type: string
+              description: "сообщение ответа"
+              example: "SUCCESS"
+            errors:
+              type: array
+              items: {}
+              example: null
+          required:
+            - message
+            - errors
+
+    Error_data:
+      description: Все плохо
+      allOf:
+        - $ref: "#/components/schemas/Base_data"
+        - type: object
+          title: Error_data
+          properties:
+            data:
+              example: null
+          required:
+            - data
+
+    Error_400_data:
+      allOf:
+        - $ref: "#/components/schemas/Error_data"
+        - type: object
+          title: Error_Error_400_data
+          properties:
+            message:
+              type: string
+              example: "Validation error"
+            errors:
+              type: array
+              items: {}
+          required:
+            - message
+            - errors
+
+    Error_401_data:
+      allOf:
+        - $ref: "#/components/schemas/Error_data"
+        - type: object
+          title: Error_401_data
+          properties:
+            message:
+              type: string
+              description: "сообщение ответа"
+              example: "Invalid token"
+            errors:
+              type: array
+              items: {}
+          required:
+            - message
+            - errors
+
+    Error_404_data:
+      allOf:
+        - $ref: "#/components/schemas/Error_data"
+        - type: object
+          title: Error_Error_404_data
+          properties:
+            message:
+              type: string
+              description: "сообщение ответа"
+              example: "Entity not found"
+            errors:
+              type: array
+              items: {}
+              example: null
+          required:
+            - message
+            - errors
+
+    Error_405_data:
+      allOf:
+        - $ref: "#/components/schemas/Error_data"
+        - type: object
+          title: Error_Error_405_data
+          properties:
+            message:
+              type: string
+              description: "сообщение ответа"
+              example: "Method ${METHOD} not allowed"
+            errors:
+              example: null
+
+    Error_500_data:
+      allOf:
+        - $ref: "#/components/schemas/Error_data"
+        - type: object
+          title: Error_Error_500_data
+          properties:
+            message:
+              type: string
+              description: "сообщение ответа"
+              example: "Internal server error"
+            errors:
+              example: null
+          required:
+            - message
+            - errors
+    Policy_object_with_id:
+      allOf:
+        - type: object
+          properties:
+            ID:
+              type: string
+              example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+              description: "Идентификатор политики"
+          required:
+            - ID
+        - $ref: "#/components/schemas/Policy_object"
+
+    Policy_object:
+      title: Policy_object
+      properties:
+        description:
+          type: string
+          description: "Описание политики"
+          example: "Index patients collection"
+        resource:
+          type: string
+          description: "Ресурс. Используется как часть backend.URLPattern при наличии прокси."
+          example: "integration"
+        method:
+          type: string
+          description: "Метод"
+          example: "GET"
+          enum:
+            - "GET"
+            - "POST"
+            - "PATCH"
+            - "PUT"
+            - "DELETE"
+        path:
+          type: string
+          description: "Путь входящих запрососов"
+          example: "companies/{companyID}/clinics/{clinicID}/patients"
+        backendHost:
+          type: string
+          description: Хост сервера назначения
+          example: index.maximus.lan
+        backendPath:
+          type: string
+          description: Путь на сервере назрачения
+          example: companies/{companyID}/clinics/{clinicID}/patients
+        roles:
+          type: array
+          example: [ "15599952-f830-42e9-bf61-c16094b7f35c" ]
+          items:
+            type: string
+        querystring_params:
+          type: array
+          example: [ "type", "limit", "offset" ]
+          items:
+            type: string
+        headers_to_pass:
+          type: array
+          example: [ "User-Agent" ]
+          items:
+            type: string
+        key_cache:
+          type: integer
+          description: "Опциональный параметр. При указании включает кеширование ключа для валидации JWT. Задает время кеширования в секундах."
+          example: 900
+        cache:
+          type: boolean
+          description: "Включить кеширования ответа от бэкенда"
+          example: true
+      required:
+        - description
+        - resource
+        - method
+        - path
+        - backendHost
+        - backendPath
+        - roles
+        - querystring_params
+        - headers_to_pass
+        - key_cache
+        - cache
+    Policy_object_patch:
+      title: Policy_object
+      properties:
+        description:
+          type: string
+          description: "Описание политики"
+          example: "Index patients collection"
+          x-nullable: true
+        resource:
+          type: string
+          description: "Ресурс. Используется как часть backend.URLPattern при наличии прокси."
+          example: "integration"
+        method:
+          type: string
+          description: "Метод"
+          example: "GET"
+          enum:
+            - "GET"
+            - "POST"
+            - "PATCH"
+            - "PUT"
+            - "DELETE"
+        path:
+          type: string
+          description: "Путь входящих запрососов"
+          example: "companies/{companyID}/clinics/{clinicID}/patients"
+        backendHost:
+          type: string
+          description: Хост сервера назначения
+          example: index.maximus.lan
+        backendPath:
+          type: string
+          description: Путь на сервере назрачения
+          example: companies/{companyID}/clinics/{clinicID}/patients
+        roles:
+          type: array
+          example: [ "15599952-f830-42e9-bf61-c16094b7f35c" ]
+          items:
+            type: string
+        querystring_params:
+          type: array
+          example: [ "type", "limit", "offset" ]
+          items:
+            type: string
+        headers_to_pass:
+          type: array
+          example: [ "User-Agent" ]
+          items:
+            type: string
+        key_cache:
+          type: integer
+          description: "Опциональный параметр. При указании включает кеширование ключа для валидации JWT. Задает время кеширования в секундах."
+          example: 900
+        cache:
+          type: boolean
+          description: "Включить кеширования ответа от бэкенда"
+          example: true
+  parameters:
+    policyID:
+      name: policyID
+      in: path
+      description: "Идентификатор политики"
+      schema:
+        type: string
+      required: true

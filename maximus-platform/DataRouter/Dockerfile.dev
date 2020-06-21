@@ -1,0 +1,18 @@
+FROM golang:alpine
+ENV PROJECT_PATH=repo.nefrosovet.ru/maximus-platform/DataRouter
+ARG _path
+ENV GO111MODULE=off
+RUN apk add --no-cache --update \
+    git
+
+RUN mkdir -p ${GOPATH}/src/${PROJECT_PATH}
+WORKDIR ${GOPATH}/src/${PROJECT_PATH}
+COPY . .
+#RUN go get -u github.com/golang/dep/cmd/dep
+#RUN dep ensure
+WORKDIR ${_path}
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X main.version=develop" -o datarouter .
+
+ENTRYPOINT [ "./datarouter" ]
+
+EXPOSE 8585

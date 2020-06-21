@@ -1,0 +1,23 @@
+FROM golang:1.13-alpine
+
+RUN apk add --no-cache --update \
+	git
+
+# Auth app
+
+ENV GOPATH=/go \
+	PATH="/go/bin:$PATH"
+
+# Copy the local package files to the container's workspace. Add to GOPATH
+ADD . /go/src/repo.nefrosovet.ru/maximus-platform/auth
+
+WORKDIR /go/src/repo.nefrosovet.ru/maximus-platform/auth
+
+# Build
+RUN go install -ldflags "-X main.version=develop" repo.nefrosovet.ru/maximus-platform/auth/cmd/auth
+
+# Run the auth command by default when the container starts.
+ENTRYPOINT /go/bin/auth
+
+# Service listens on port 8484.
+EXPOSE 8484

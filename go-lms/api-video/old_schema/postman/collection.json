@@ -1,0 +1,108 @@
+{
+	"info": {
+		"_postman_id": "a5c5a4ac-4f65-4453-95ee-25d3285e7a7c",
+		"name": "WebinarAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Коллекция пользователей",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Коллекция вебинаров",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api-video.nefrosovet.ru/api/v1/webinar?token=a9faa721-ad77-43b6-83d1-68878224f188",
+					"protocol": "https",
+					"host": [
+						"api-video",
+						"nefrosovet",
+						"ru"
+					],
+					"path": [
+						"api",
+						"v1",
+						"webinar"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "a9faa721-ad77-43b6-83d1-68878224f188"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Информация о вебинаре",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api-video.nefrosovet.ru/api/v1/webinar/3067?token=a9faa721-ad77-43b6-83d1-68878224f188",
+					"protocol": "https",
+					"host": [
+						"api-video",
+						"nefrosovet",
+						"ru"
+					],
+					"path": [
+						"api",
+						"v1",
+						"webinar",
+						"3067"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "a9faa721-ad77-43b6-83d1-68878224f188"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Коллекция пользователей вебинара",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api-video.nefrosovet.ru/api/v1/webinar/3067/user?token=a9faa721-ad77-43b6-83d1-68878224f188",
+					"protocol": "https",
+					"host": [
+						"api-video",
+						"nefrosovet",
+						"ru"
+					],
+					"path": [
+						"api",
+						"v1",
+						"webinar",
+						"3067",
+						"user"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "a9faa721-ad77-43b6-83d1-68878224f188"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

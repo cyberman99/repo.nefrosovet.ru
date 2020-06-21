@@ -1,0 +1,1368 @@
+---
+swagger: '2.0'
+info:
+  version: "1.0.0"
+  title: Mailer API
+  description: |
+    #### RESTFUL Mailer API
+schemes:
+  - http
+host: "mailer.maximus.lan"
+basePath: /
+
+parameters:
+  accessToken:
+    name: accessToken
+    in: query
+    description: "Токен доступа"
+    type: string
+    required: true
+
+  masterToken:
+    name: masterToken
+    in: query
+    description: "ROOT Токен доступа"
+    type: string
+    required: true
+
+  tokenID:
+    name: tokenID
+    in: path
+    description: "Идентификатор токена"
+    type: string
+    required: true
+
+  channelID:
+    name: channelID
+    in: path
+    description: "Идентификатор канала"
+    type: string
+    required: true
+
+
+  messageID:
+    name: messageID
+    in: path
+    description: "Идентификатор сообщения"
+    type: string
+    required: true
+
+  limit:
+    name: limit
+    in: query
+    description: "Лимит"
+    default: 100
+    type: integer
+    required: false
+
+  offset:
+    name: offset
+    in: query
+    description: "Шаг"
+    default: 0
+    type: integer
+    required: false
+
+  filter.channelID:
+    name: channelID
+    in: query
+    description: "Идентификатор канала"
+    type: string
+    required: false
+
+  filter.status:
+    name: status
+    in: query
+    description: "Статус сообщения"
+    type: string
+    enum:
+      - SENT
+      - ERROR
+    required: false
+
+  filter.destination:
+    name: destination
+    in: query
+    description: "Адрес назначения"
+    type: string
+    required: false
+
+paths:
+  /tokens:
+    parameters:
+      - $ref: "#/parameters/masterToken"
+    get:
+      tags:
+        - Manage
+      summary: Коллекция токенов
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Token_response_200"
+        403:
+          $ref: "#/responses/Base_response_403"
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Token_params"
+              - type: object
+                required:
+                  - description
+      tags:
+        - Manage
+      summary: Создание токена доступа
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Token_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+  /tokens/{tokenID}:
+    parameters:
+      - $ref: "#/parameters/masterToken"
+      - $ref: "#/parameters/tokenID"
+    get:
+      tags:
+        - Manage
+      summary: Информация о токене
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Token_response_200"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+    put:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Token_params"
+              - type: object
+                required:
+                  - description
+      tags:
+        - Manage
+      summary: Изменение токена доступа
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Token_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+    delete:
+      tags:
+        - Manage
+      summary:  Удаление токена
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Token_response_200"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+    get:
+      tags:
+        - Channels
+      summary: Коллекция каналов
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_response_200"
+        403:
+          $ref: "#/responses/Base_response_403"
+  /channels/{channelID}:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+      - $ref: "#/parameters/channelID"
+    get:
+      tags:
+        - Channels
+      summary: Информация о канале
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_response_200"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+    delete:
+      tags:
+        - Channels
+      summary:  Удаление канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_response_200"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/email:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_mail"
+              - type: object
+                required:
+                  - server
+                  - port
+                  - ssl
+                  - login
+                  - password
+      tags:
+        - Channels
+      summary: Создание e-mail канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_email_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/email/{channelID}:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+      - $ref: "#/parameters/channelID"
+    put:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_mail"
+              - type: object
+                required:
+                  - server
+                  - port
+                  - ssl
+                  - login
+                  - password
+      tags:
+        - Channels
+      summary:  Изменение e-mail канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_email_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/local_sms:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_local_sms"
+              - type: object
+                required:
+                  - server
+                  - port
+                  - db
+                  - login
+                  - password
+                  - modemID
+                  - limit
+      tags:
+        - Channels
+      summary: Создание Local SMS канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_local_sms_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/local_sms/{channelID}:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+      - $ref: "#/parameters/channelID"
+    put:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_local_sms"
+              - type: object
+                required:
+                  - server
+                  - port
+                  - db
+                  - login
+                  - password
+                  - modemID
+                  - limit
+      tags:
+        - Channels
+      summary:  Изменение Local SMS канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_local_sms_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/mts_sms:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_mts_sms"
+              - type: object
+                required:
+                  - login
+                  - password
+                  - limit
+      tags:
+        - Channels
+      summary: Создание MTS SMS канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_mts_sms_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/mts_sms/{channelID}:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+      - $ref: "#/parameters/channelID"
+    put:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_mts_sms"
+              - type: object
+                required:
+                  - login
+                  - password
+                  - limit
+      tags:
+        - Channels
+      summary:  Изменение MTS SMS канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_mts_sms_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/slack:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_slack"
+              - type: object
+                required:
+                  - token
+                  - name
+      tags:
+        - Channels
+      summary: Создание Slack канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_slack_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/slack/{channelID}:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+      - $ref: "#/parameters/channelID"
+    put:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_slack"
+              - type: object
+                required:
+                  - token
+                  - name
+      tags:
+        - Channels
+      summary:  Изменение Slack канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_slack_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/telegram:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_telegram"
+              - type: object
+                required:
+                  - token
+                  - greetingText
+                  - buttonText
+                  - answerText
+                  - alternateText
+      tags:
+        - Channels
+      summary: Создание Telegram канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_telegram_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/telegram/{channelID}:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+      - $ref: "#/parameters/channelID"
+    put:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_telegram"
+              - type: object
+                required:
+                  - token
+                  - greetingText
+                  - buttonText
+                  - answerText
+                  - alternateText
+      tags:
+        - Channels
+      summary:  Изменение Telegram канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_telegram_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/viber:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_viber"
+      tags:
+        - Channels
+      summary: Создание Viber канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_viber_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /channels/viber/{channelID}:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+      - $ref: "#/parameters/channelID"
+    put:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Channel_params_viber"
+      tags:
+        - Channels
+      summary:  Изменение Viber канала
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Channel_viber_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /send:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            allOf:
+              - $ref: "#/definitions/Message_object"
+              - type: object
+                required:
+                  - channelID
+                  - destination
+                  - data
+      tags:
+        - Messages
+      summary: Отправка сообщения
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Message_response_200"
+        400:
+          $ref: "#/responses/Base_response_400"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+        500:
+          $ref: "#/responses/Base_response_500"
+
+  /messages:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+      - $ref: "#/parameters/filter.channelID"
+      - $ref: "#/parameters/filter.destination"
+      - $ref: "#/parameters/filter.status"
+      - $ref: "#/parameters/limit"
+      - $ref: "#/parameters/offset"
+    get:
+      tags:
+        - Messages
+      summary: Коллекция сообщений
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Message_response_200"
+        403:
+          $ref: "#/responses/Base_response_403"
+        405:
+          $ref: "#/responses/Base_response_405"
+
+  /messages/{messageID}:
+    parameters:
+      - $ref: "#/parameters/accessToken"
+      - $ref: "#/parameters/messageID"
+    get:
+      tags:
+        - Messages
+      summary: Информация о сообщении
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      responses:
+        200:
+          $ref: "#/responses/Message_response_200"
+        403:
+          $ref: "#/responses/Base_response_403"
+        404:
+          $ref: "#/responses/Base_response_404"
+        405:
+          $ref: "#/responses/Base_response_405"
+  /status:
+    get:
+      tags:
+        - Service
+      summary: Проверка подключения к БД
+      responses:
+        200:
+          description: "Успех"
+          schema:
+            allOf:
+              - $ref: "#/definitions/Success_data"
+        500:
+          description: "Ошибка"
+          schema:
+            allOf:
+              - $ref: "#/definitions/Error_500_data"
+
+responses:
+  Base_response_200:
+    description: "Success"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_400_data"
+
+  Base_response_500:
+    description: "Internal server error"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_400_data"
+
+  Base_response_400:
+    description: "Validation error"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_400_data"
+
+  Base_response_403:
+    description: "Forbidden"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_403_data"
+
+  Base_response_404:
+    description: "Not found"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_404_data"
+
+  Base_response_405:
+    description: "Invalid Method"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Error_405_data"
+
+  Channel_response_200:
+    description: "Коллекция каналов"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items: {}
+          required:
+            - data
+
+  Token_response_200:
+    description: "Коллекция токенов"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор токена"
+                  - $ref: "#/definitions/Token_params"
+
+  Channel_email_response_200:
+    description: "Коллекция каналов"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор канала"
+                      type:
+                        type: string
+                        description: "Тип канала"
+                        example: "email"
+                  - $ref: "#/definitions/Channel_params_mail"
+                x-go-name: data-item-email
+
+  Channel_local_sms_response_200:
+    description: "Коллекция каналов"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор канала"
+                      type:
+                        type: string
+                        description: "Тип канала"
+                        example: "local_sms"
+                  - $ref: "#/definitions/Channel_params_local_sms"
+                x-go-name: data-item-local-sms
+
+  Channel_mts_sms_response_200:
+    description: "Коллекция каналов"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор канала"
+                      type:
+                        type: string
+                        description: "Тип канала"
+                        example: "mts_sms"
+                  - $ref: "#/definitions/Channel_params_mts_sms"
+                x-go-name: data-item-mts-sms
+
+  Channel_slack_response_200:
+    description: "Коллекция каналов"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор канала"
+                      type:
+                        type: string
+                        description: "Тип канала"
+                        example: "slack"
+                  - $ref: "#/definitions/Channel_params_slack"
+                x-go-name: data-item-slack
+
+  Channel_telegram_response_200:
+    description: "Коллекция каналов"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор канала"
+                      type:
+                        type: string
+                        description: "Тип канала"
+                        example: "telegram"
+                  - $ref: "#/definitions/Channel_params_telegram"
+                x-go-name: data-item-telegram
+
+  Channel_viber_response_200:
+    description: "Коллекция каналов"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор канала"
+                      type:
+                        type: string
+                        description: "Тип канала"
+                        example: "viber"
+                  - $ref: "#/definitions/Channel_params_viber"
+                x-go-name: data-item-viber
+
+  Message_response_200:
+    description: "Коллекция сообщений"
+    schema:
+      allOf:
+        - $ref: "#/definitions/Success_data"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                allOf:
+                  - type: object
+                    properties:
+                      ID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                        description: "Идентификатор сообщения"
+                      channelID:
+                        type: string
+                        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+                      created:
+                        type: string
+                        description: "Дата-время создания сообщения"
+                        example: "2005-08-09T18:31:42+03:30"
+                      status:
+                        type: string
+                        example: "SENT"
+                        enum: [ "SENT", "ERROR"]
+                      errors:
+                        example: null
+                    required:
+                      - errors
+                  - $ref: "#/definitions/Message_object"
+definitions:
+  Base_data:
+    description: Возвращает статус ответа
+    type: object
+    properties:
+      version:
+        type: string
+        description: "Версия ответа сервиса"
+        example: "1.0.1"
+
+  Success_data:
+    description: Все хорошо
+    allOf:
+      - $ref: "#/definitions/Base_data"
+      - type: object
+        title: Success_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Success"
+          errors:
+            example: null
+        required:
+          - message
+          - errors
+
+  Error_data:
+    description: Все плохо
+    allOf:
+      - $ref: "#/definitions/Base_data"
+      - type: object
+        title: Error_data
+        properties:
+          data:
+            example: null
+        required:
+          - data
+
+  Error_400_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_400_data
+        properties:
+          message:
+            type: string
+            example: "Validation error"
+          errors:
+            type: object
+        required:
+          - errors
+
+  Error_403_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_403_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Access denied"
+          errors:
+            example: null
+        required:
+          - errors
+
+  Error_404_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_404_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Entity not found"
+          errors:
+            example: null
+        required:
+          - errors
+
+  Error_405_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_405_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Method ${METHOD} not allowed"
+          errors:
+            example: null
+        required:
+          - errors
+
+  Error_500_data:
+    allOf:
+      - $ref: "#/definitions/Error_data"
+      - type: object
+        title: Error_Error_500_data
+        properties:
+          message:
+            type: string
+            description: "сообщение ответа"
+            example: "Internal server error"
+          errors:
+            example: null
+        required:
+          - errors
+
+  Token_params:
+    title: Token_params
+    properties:
+      description:
+        type: string
+        description: "Описание токена"
+        example: "Токен Maximus ActionServer"
+    required:
+      - description
+
+  Channel_params_mail:
+    title: Channel_params_mail
+    properties:
+      server:
+        type: string
+        description: "Адрес сервера"
+        example: "mail.google.com"
+      port:
+        type: integer
+        description: "Порт сервера"
+        example: 465
+      ssl:
+        type: boolean
+        description: "Использование SSL"
+        example: true
+      from:
+        type: string
+        description: "Имя отправителя"
+        x-nullable: true
+        example: "Иванов Иван"
+      login:
+        type: string
+        description: "Логин авторизации"
+        example: "ivanov@gmail.com"
+      password:
+        type: string
+        description: "Пароль авторизации"
+        example: "xxxxxxxxxxxxxxxxxxxxxxxx"
+      contentType:
+        type: string
+        description: "Пользовательский Content-Type заголовок"
+        example: "text/html; charset=UTF-8"
+        default: "text/html; charset=UTF-8"
+    required:
+      - server
+      - port
+      - ssl
+      - login
+      - password
+
+  Channel_params_local_sms:
+    title: Channel_params_local_sms
+    properties:
+      server:
+        type: string
+        description: "Адрес сервера"
+        example: "127.0.0.1"
+      port:
+        type: integer
+        description: "Порт сервера"
+        example: 3306
+      db:
+        type: string
+        description: "Имя базы данных"
+        example: "sms"
+      login:
+        type: string
+        description: "Логин авторизации"
+        example: "root"
+      password:
+        type: string
+        description: "Пароль авторизации"
+        example: "xxxxxxxxxxxxxxxxxxxxxxxx"
+      modemID:
+        type: integer
+        description: "Идентификатор модема"
+        example: 1
+      limit:
+        type: integer
+        description: "Лимит отпраки смс в месяц"
+        example: "100"
+    required:
+      - server
+      - port
+      - db
+      - login
+      - password
+      - modemID
+      - limit
+
+
+  Channel_params_mts_sms:
+    title: Channel_params_mts_sms
+    properties:
+      from:
+        type: string
+        description: "Подпись отправителя"
+        example: "Диакеа-Софт"
+      login:
+        type: string
+        description: "Логин авторизации"
+        example: "79852179550"
+      password:
+        type: string
+        description: "Пароль авторизации"
+        example: "xxxxxxxxxxxxxxxxxxxxxxxx"
+      limit:
+        type: integer
+        description: "Лимит отпраки смс в месяц"
+        example: "100"
+    required:
+      - from
+      - login
+      - password
+      - limit
+
+  Channel_params_slack:
+    title: Channel_params_slack
+    properties:
+      token:
+        type: string
+        description: "Токен доступа"
+        example: "xoxp-89165582503-91428058226-349753181681-bf6d33aaacd2882ee4771e0702238ea1"
+      name:
+        type: string
+        description: "Имя отправителя"
+        example: "Sample bot"
+    required:
+      - token
+      - name
+
+  Channel_params_telegram:
+    title: Channel_params_telegram
+    properties:
+      token:
+        type: string
+        description: "Токен доступа (токен бота)"
+        example: "566046871:wdHia5wIkEDUu5fy9vqFOGa1Ldhcbjeabwrj"
+      greetingText:
+        type: string
+        description: "Текст приветствия"
+        example: "Отправьте нам свои контактные данные"
+      buttonText:
+        type: string
+        description: "Текст на кнопке"
+        example: "Передать контактные данные"
+      answerText:
+        type: string
+        description: "Текст ответа"
+        example: "Спасибо, ожидайте сообщений"
+      alternateText:
+        type: string
+        description: "Альтернативный текст приветствия"
+        example: "Вы уже зарегистрированы, ожидайте сообщений"
+    required:
+      - token
+      - buttonText
+      - greetingText
+      - answerText
+      - alternateText
+
+  Channel_params_viber:
+    title: Channel_params_viber
+    properties:
+      token:
+        type: string
+        description: "Токен доступа"
+        example: "47e4edbc8327d7ce-9f999da8d6e94bee-18ef694bbaed9ac7"
+      greetingText:
+        type: string
+        description: "Текст приветствия"
+        example: "Отправьте нам свои контактные данные"
+      buttonText:
+        type: string
+        description: "Текст на кнопке"
+        example: "Передать контактные данные"
+      answerText:
+        type: string
+        description: "Текст ответа"
+        example: "Спасибо, ожидайте сообщений"
+      alternateText:
+        type: string
+        description: "Альтернативный текст приветствия"
+        example: "Вы уже зарегистрированы, ожидайте сообщений"
+      botName:
+        type: string
+        description: "Название бота в Viber"
+        example: "NefrosovetBot"
+      botAvatar:
+        type: string
+        description: "URL аватара бота"
+        example: "https://mysite.com/img/avatar.jpg"
+    required:
+      - token
+      - botName
+      - botAvatar
+      - buttonText
+      - greetingText
+      - answerText
+      - alternateText
+
+  Message_object:
+    title: Message_object
+    properties:
+      channelID:
+        type: string
+        example: "d00962f4-d052-4fb4-99d6-91b56208e72f"
+        description: "Идентификатор канала"
+      destination:
+        type: string
+        example: "vasya@mail.ru"
+        description: "Точка назначения получателя - email/phone"
+      data:
+        type: string
+        example: "bla bla bla"
+        description: "Содержимое сообщения"
+      meta:
+        type: object
+        title: Message_meta
+        description: "Мета информация сообщения"
+        properties:
+          emailSubject:
+            type: string
+            example: "New message"
+            description: "Тема письма в Email канале"
+          emailFrom:
+            type: string
+            example: "Custom sender"
+            description: "Имя отправителя письма в Email канале"
+          slackDestType:
+            type: string
+            example: "user"
+            description: "Тип адреса назначения в Slack канале"
+            enum:
+              - user
+              - channel
+    required:
+      - channelID
+      - destination
+      - data

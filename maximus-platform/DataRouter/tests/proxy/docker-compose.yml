@@ -1,0 +1,110 @@
+version: '3.7'
+
+networks:
+  datarouter:
+
+
+services:
+  config_db:
+    image: repository.diacare-soft.ru/docker/mongo:4.2
+    container_name: "datarouter_config_db-${CI_JOB_ID}"
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    networks:
+      - datarouter
+    ports:
+      - 27017
+
+  event_db:
+    image: repository.diacare-soft.ru/docker/influxdb:1.7
+    container_name: "datarouter_event_db-${CI_JOB_ID}"
+    networks:
+      - datarouter
+    ports:
+      - 8086
+    environment:
+      - INFLUXDB_DB=data_router
+      - INFLUXDB_USER=data_router
+      - INFLUXDB_USER_PASSWORD=FqTfXq7e5d
+
+  proxy:
+    image: "${CI_REGISTRY_IMAGE}/proxy:${CI_PIPELINE_ID}"
+    container_name: "datarouter_proxy-${CI_JOB_ID}"
+    networks:
+      - datarouter
+    ports:
+      - 8040
+    depends_on:
+      - config_db
+      - event_db
+      - broker
+    environment:
+      - DATAROUTER_CONFIGDB_HOST=config_db
+      - DATAROUTER_CONFIGDB_PORT=27017
+      - DATAROUTER_CONFIGDB_DATABASE=data_router
+
+      - DATAROUTER_EVENTDB_HOST=event_db
+      - DATAROUTER_EVENTDB_PORT=8086
+      - DATAROUTER_EVENTDB_PROTOCOL=http
+      - DATAROUTER_EVENTDB_DATABASE=data_router
+      - DATAROUTER_EVENTDB_LOGIN=data_router
+      - DATAROUTER_EVENTDB_PASSWORD=FqTfXq7e5d
+
+      - DATAROUTER_SENTRYDSN=https://782091f732ec472a9625f247dfaac200:01c98e710e9a4faebf199a29e504a6af@sentry.nefrosovet.ru/29
+
+      - DATAROUTER_LOGGING_OUTPUT=STDOUT
+      - DATAROUTER_LOGGING_LEVEL=INFO
+
+      - DATAROUTER_MQ_HOST=broker
+      - DATAROUTER_MQ_PORT=1883
+      - DATAROUTER_MQ_LOGIN=datarouter
+      - DATAROUTER_MQ_PASSWORD=kw2D0gW6jD
+      - DATAROUTER_MQ_PUBCLIENTID=publisher_dataRouterID
+      - DATAROUTER_MQ_SUBCLIENTID=subscriber_dataRouterID
+      - DATAROUTER_MQ_SUBSCRIBE=services/+/OUT
+
+  broker:
+    image: erlio/docker-vernemq:1.9.2
+    restart: always
+    container_name: "datarouter_broker-${CI_JOB_ID}"
+    networks:
+      - datarouter
+    ports:
+      - 1883
+    environment:
+      - DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=info
+      - DOCKER_VERNEMQ_QUEUE_DELIVER_MODE=balance
+      # Login
+      - DOCKER_VERNEMQ_USER_datarouter=kw2D0gW6jD
+    logging:
+      driver: none
+
+  test:
+    container_name: "proxy_tests-${CI_JOB_ID}"
+    build:
+      context: ../../
+      dockerfile: ./tests/proxy/Dockerfile
+      args:
+        - "GO_VERSION=${GO_VERSION}"
+        - "PROJECT_PATH=${GITLAB_HOST}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}"
+    networks:
+      - datarouter
+    depends_on:
+      - proxy
+    environment:
+      - DATAROUTER_MQ_SUBCLIENTID=testSub
+      - DATAROUTER_MQ_PUBCLIENTID=testPub
+      - DATAROUTER_MQ_LOGIN=datarouter
+      - DATAROUTER_MQ_PASSWORD=kw2D0gW6jD
+      - DATAROUTER_MQ_HOST=broker
+      - DATAROUTER_MQ_PORT=1883
+      - DATAROUTER_EVENTDB_HOST=event_db
+      - DATAROUTER_EVENTDB_PORT=8086
+      - DATAROUTER_EVENTDB_LOGIN=data_router
+      - DATAROUTER_EVENTDB_PASSWORD=FqTfXq7e5d
+      - DATAROUTER_EVENTDB_DATABASE=data_router
+      - DATAROUTER_CONFIGDB_HOST=config_db
+      - DATAROUTER_CONFIGDB_PORT=27017
+      - DATAROUTER_CONFIGDB_DATABASE=data_router
+    command: go test -count=1 -timeout 600s ./... -v

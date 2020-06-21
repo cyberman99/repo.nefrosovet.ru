@@ -1,0 +1,73 @@
+version: '3.7'
+
+networks:
+    diacare:
+        external: true
+
+volumes:
+    mongo:
+    influxdb:
+
+services:
+    mongodb:
+        image: mongo
+        container_name: mailer_mongodb
+        ports:
+            - 27017:27017
+        networks:
+            - diacare
+        volumes:
+            - 'mongo:/data/db'
+    influxdb:
+        image: influxdb
+        container_name: mailer_eventdb
+        volumes:
+            - 'influxdb:/var/lib/influxdb'
+        networks:
+            - diacare
+        ports:
+            - 8086:8086
+            - 8083:8083
+    mailer:
+        build:
+            context: ./
+            dockerfile: Dockerfile.dev
+            args:
+                _project_path: repo.nefrosovet.ru/maximus-platform/mailer
+                _build_path: cmd/mailer
+            target: server
+        container_name: mailer_server
+        environment:
+            - MAILER_HTTP_HOST=0.0.0.0
+            - MAILER_HTTP_PORT=8585
+            - MAILER_CONFIGDB_HOST=mailer_mongodb
+            - MAILER_EVENTDB_HOST=mailer_eventdb
+            - MAILER_EVENTDB_RETENTION=7d
+            - MAILER_MASTERTOKEN=mastertoken
+            - MAILER_MQ_HOST=mqtt_broker
+            - MAILER_MQ_PORT=1883
+            - MAILER_MQ_PUBCLIENTID=ca0e05a3-d022-4189-b9ba-7d9f5f1bbfc5
+            - MAILER_MQ_SUBCLIENTID=cabc16d6-c257-40d9-872a-b6effc4b2897
+            - MAILER_MQ_LOGIN=mailer
+            - MAILER_MQ_PASSWORD=kw2D0gW6jD
+            - MAILER_MQ_TOPICIN=services/mailer/IN
+            - MAILER_MQ_TOPICOUT=services/mailer/OUT
+        ports:
+            - 8585:8585
+        networks:
+            - diacare
+        tty: true
+        depends_on:
+            - mongodb
+            - influxdb
+            - mqtt_broker
+    mqtt_broker:
+        image: erlio/docker-vernemq:1.9.0
+        container_name: mailer_mqtt_broker
+        restart: on-failure
+        networks:
+            - diacare
+        environment:
+            - DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=info
+            - DOCKER_VERNEMQ_USER_mailer=kw2D0gW6jD
+            - DOCKER_VERNEMQ_USER_test=test

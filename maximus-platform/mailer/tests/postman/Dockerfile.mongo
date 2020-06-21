@@ -1,0 +1,2 @@
+FROM repository.diacare-soft.ru/docker/mongo:4.2
+ADD mongo-init.json docker-entrypoint-initdb.d/init.js

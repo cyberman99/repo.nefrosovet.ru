@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  recognition:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    container_name: recognition_server
+    environment:
+      - RECOGNITION_HTTP_HOST=0.0.0.0
+      - RECOGNITION_HTTP_PORT=80
+      - RECOGNITION_AWS_ACCESSID=testtest
+      - RECOGNITION_AWS_ACCESSSECRET=testtest
+      - RECOGNITION_AWS_REGION=us-west-1
+      - RECOGNITION_AWS_BUCKET=testtest
+      - RECOGNITION_AWS_SIMILARITY=85.00
+      - RECOGNITION_LOGGING_OUTPUT=STDOUT
+      - RECOGNITION_LOGGING_FORMAT=TEXT
+      - RECOGNITION_LOGGING_LEVEL=DEBUG
+    ports:
+      - 8585:80
+    networks:
+      - recognition
+    tty: true
+
+networks:
+  recognition:

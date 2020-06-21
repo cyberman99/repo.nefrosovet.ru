@@ -1,0 +1,51 @@
+FROM golang:1.13-alpine AS build-env
+
+RUN apk update \
+    && apk add --no-cache \
+        git && git config --global http.sslVerify false \
+    && go get -u -v \
+        github.com/golang/dep/cmd/dep \
+        github.com/derekparker/delve/cmd/dlv
+
+ARG _project_path=repo.nefrosovet.ru/maximus-platform/mailer
+WORKDIR ${GOPATH}/src/${_project_path}
+
+COPY Gopkg.toml Gopkg.lock ./
+RUN dep ensure -v -vendor-only
+
+
+FROM build-env AS builder
+
+ARG _build_path=cmd/mailer
+
+COPY . .
+
+WORKDIR ${_build_path}
+RUN CGO_ENABLED=0 GOOS=linux go build -gcflags "all=-N -l" -o /bin/mailer .
+
+
+FROM alpine:latest AS server
+
+RUN apk add --no-cache \
+    ca-certificates \
+    libc6-compat
+
+ARG GID=12345
+ARG UID=54321
+RUN addgroup -g ${GID} services && adduser -H -D -u ${UID} mailer services
+USER mailer
+
+COPY --from=builder /bin/mailer /bin/
+
+ENTRYPOINT ["/bin/mailer"]
+EXPOSE 8585
+
+
+FROM server AS debugger
+
+USER root
+
+COPY --from=build-env  /go/bin/dlv /bin/
+
+EXPOSE 40000
+ENTRYPOINT ["/bin/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/bin/mailer"]

@@ -1,0 +1,32 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+      - config:
+        - type: container
+          format: docker
+          paths: 
+          - "/var/lib/docker/containers/${data.docker.container.id}/*.log"
+
+output.elasticsearch:
+  hosts: ['k8s.maximus.lan:80/elasticsearch']
+  index: "autotest"
+
+setup:
+  template:
+    name: "autotest"
+    pattern: "autotest"
+    enabled: true
+  ilm:
+    enabled: false
+
+processors:
+- decode_json_fields:
+   fields: ["message"]
+   max_depth: 1
+   target: "msg"
+- add_fields:
+    target: CI
+    fields:
+      pipeline_id: '${PIPELINE_ID}'
+      job_id: '${JOB_ID}'

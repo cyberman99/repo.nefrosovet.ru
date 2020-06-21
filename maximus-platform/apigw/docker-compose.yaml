@@ -1,0 +1,91 @@
+version: '3'
+services:
+    influxdb:
+        image: influxdb
+        container_name: apigw_influxdb
+        volumes:
+        - 'influxdb:/var/lib/influxdb'
+        networks:
+        - diacare
+        ports:
+        - 8086:8086
+        - 8083:8083
+        environment:
+            - INFLUXDB_DB=apigw-develop
+            - INFLUXDB_USER=apigw-develop
+            - INFLUXDB_USER_PASSWORD=FqTfXq7e5d
+        logging:
+            driver: none
+
+    mongodb:
+        image: mongo
+        container_name: apigw_mongo
+        # ports:
+        # - 27017:27017
+        networks:
+        - diacare
+        volumes:
+        - 'mongodb:/data/db'
+        logging:
+          driver: none
+    api:
+        build:
+            context: ./
+            dockerfile: Dockerfile.dev
+        command: /go/bin/api
+        container_name: apigw_api
+        environment:
+            - APIGW_LOGGING_LEVEL=DEBUG
+            - APIGW_CONFIGDB_HOST=apigw_mongo
+            - APIGW_EVENTDB_HOST=apigw_influxdb
+            - APIGW_EVENTDB_DATABASE=apigw-develop
+            - APIGW_EVENTDB_LOGIN=apigw-develop
+            - APIGW_EVENTDB_PASSWORD=FqTfXq7e5d
+            - APIGW_EVENTDB_RETENTION=7d
+
+            - APIGW_HTTP_HOST=0.0.0.0
+            - APIGW_HTTP_PORT=8383
+        ports:
+            - 8383:8383
+        networks:
+            - diacare
+        tty: true
+        depends_on:
+            - influxdb
+            - mongodb
+    gw:
+        build:
+            context: ./
+            dockerfile: Dockerfile.dev
+        command: /go/bin/gw
+        container_name: apigw_gw
+        environment:
+            - APIGW_LOGGING_LEVEL=DEBUG
+            - APIGW_CONFIGDB_HOST=apigw_mongo
+
+            - APIGW_JWKURL=http://auth_server:8484/jwk
+            - APIGW_HTTP_HOST=localhost
+            - APIGW_HTTP_PORT=8384
+
+            - APIGW_EVENTDB_HOST=apigw_influxdb
+            - APIGW_EVENTDB_DATABASE=apigw-develop
+            - APIGW_EVENTDB_LOGIN=apigw-develop
+            - APIGW_EVENTDB_PASSWORD=FqTfXq7e5d
+            - APIGW_EVENTDB_RETENTION=7d
+
+            # - APIGW_PROXY_HOST=edge_nginx
+            # - APIGW_PROXY_PORT=80
+        ports:
+            - 8384:8384
+        networks:
+            - diacare
+        tty: true
+        depends_on:
+            - mongodb
+
+networks:
+    diacare:
+        external: true
+volumes:
+    mongodb:
+    influxdb:
